@@ -108,7 +108,7 @@ export function DataTable({ columns, rows, total, page, pageSize, sort, dir, fil
             {table.getHeaderGroups().map((hg) => (
               <TableRow key={hg.id} className="bg-muted/40 hover:bg-muted/40">
                 {hg.headers.map((h) => {
-                  const sortable = h.column.getCanSort();
+                  const sortable = !!columns.find((c) => c.id === h.column.id)?.sortable;
                   const active = sort === h.column.id;
                   const Icon = !active ? ArrowUpDown : dir === "desc" ? ArrowDown : ArrowUp;
                   return (
