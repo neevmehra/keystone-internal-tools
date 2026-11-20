@@ -9,6 +9,7 @@ import { PrismaClient, type Prisma } from "@prisma/client";
 import { DEMO_IDENTITIES } from "../src/platform/auth/demo-identities";
 import { rolesForGroups } from "../src/platform/auth/group-role-map";
 import { seedRefunds } from "./seeds/refunds";
+import { seedGovernance } from "./seed-governance";
 
 export const CUSTOMER_COUNT = 1_000;
 export const TRANSACTION_COUNT = 5_000;
@@ -246,6 +247,7 @@ async function main() {
   console.log(`Seeded ${Object.keys(users).length} demo users and ${refunds} refunds.`);
   const demoApprovals = await seedDemoApprovals(prisma);
   if (demoApprovals) console.log(`Seeded ${demoApprovals} demo approvals (tool "demo").`);
+  await seedGovernance(prisma, anchorDate());
   await prisma.$disconnect();
 }
 

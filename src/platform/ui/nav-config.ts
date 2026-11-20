@@ -7,5 +7,5 @@ export const PLATFORM_ROUTES = {
   insights: { href: "/insights", label: "Insights", enabled: true, permission: "approvals:view" },
   build: { href: "/build", label: "Build with Devin", enabled: false, permission: "requests:create" },
   audit: { href: "/audit", label: "Audit", enabled: true, permission: "audit:read" },
-  admin: { href: "/admin", label: "Admin", enabled: false, permission: "admin:read" },
+  admin: { href: "/admin", label: "Admin", enabled: true, permission: "admin:read" },
 } as const;

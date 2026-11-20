@@ -157,3 +157,42 @@ model Notification {
   @@index([userId, readAt, createdAt])
   @@index([channel, deliveryStatus, createdAt])
 }
+
+// Periodic user access reviews (SOC 2 / sponsor-bank evidence).
+// A review snapshots every user's groups and roles when it starts; reviewers
+// mark each one keep or revoke. Completed reviews are read-only.
+model AccessReview {
+  id              String             @id @default(cuid())
+  name            String
+  status          String             @default("in_progress") // in_progress | completed
+  startedById     String
+  startedByName   String
+  startedAt       DateTime           @default(now())
+  completedById   String?
+  completedByName String?
+  completedAt     DateTime?
+  items           AccessReviewItem[]
+
+  @@index([status, startedAt])
+}
+
+model AccessReviewItem {
+  id            String       @id @default(cuid())
+  reviewId      String
+  review        AccessReview @relation(fields: [reviewId], references: [id])
+  userId        String
+  userName      String
+  userEmail     String
+  groups        String // JSON string[] snapshot at review start
+  roles         String // JSON string[] snapshot at review start
+  lastLoginAt   DateTime?
+  stale         Boolean      @default(false) // no sign-in for 30+ days at review start
+  decision      String? // keep | revoke
+  note          String?
+  decidedById   String?
+  decidedByName String?
+  decidedAt     DateTime?
+
+  @@unique([reviewId, userId])
+  @@index([reviewId, decision])
+}

@@ -23,6 +23,7 @@ export const PLATFORM_PERMISSIONS = [
   // Demo seed data only (prisma/seed.ts, tool "demo"). Remove with that seed
   // section once real tools seed their own approvals.
   "demo:approve",
+  "access_reviews:manage",
 ] as const;
 
 // Tool permissions: `<tool>:read`, `<tool>:write`, `<tool>:approve`.
@@ -43,9 +44,10 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   support_agent: ["requests:create", "pii:read", "refunds:read", "refunds:request"],
   ops_analyst: ["requests:create"],
   finance_approver: ["approvals:view", "demo:approve", "requests:create", "refunds:read", "refunds:approve"],
-  compliance_officer: ["pii:read", "audit:read", "approvals:view", "refunds:read"],
-  auditor: ["audit:read", "audit:export", "refunds:read"],
-  admin: ["admin:read", "audit:read", "approvals:view", "requests:create", "requests:approve", "refunds:read"],
+  compliance_officer: ["pii:read", "audit:read", "approvals:view", "admin:read", "access_reviews:manage", "refunds:read"],
+  auditor: ["audit:read", "audit:export", "admin:read", "refunds:read"],
+  // Least privilege: admins manage access, they don't need customer PII.
+  admin: ["admin:read", "audit:read", "audit:export", "access_reviews:manage", "approvals:view", "requests:create", "requests:approve", "refunds:read"],
 };
 
 export function isPermission(value: string): value is Permission {
