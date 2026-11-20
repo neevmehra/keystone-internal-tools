@@ -1,0 +1,469 @@
+{
+  "findings": [
+    {
+      "page": "refunds-queue-maria",
+      "viewport": "mobile",
+      "kind": "overflowing-element",
+      "detail": "table \"RefundCustomerAmountReasonStatusRequested byRequestedref_001\""
+    },
+    {
+      "page": "audit-alex",
+      "viewport": "mobile",
+      "kind": "overflowing-element",
+      "detail": "table \"WhenActorToolActionRecordChangesjust nowAlex KimAuditorPlatf\""
+    },
+    {
+      "page": "admin-access-matrix",
+      "viewport": "mobile",
+      "kind": "overflowing-element",
+      "detail": "a \"Access reviews\" | a \"Evidence pack\" | table \"Rolepii:readaudit:readaudit:exportapprovals:viewadmin:readre\" | table \"NameIdP groupsRolesLast sign-inAvery Admina•••@example.compl\""
+    },
+    {
+      "page": "chargebacks-queue-olivia",
+      "viewport": "mobile",
+      "kind": "overflowing-element",
+      "detail": "table \"DisputeCustomerAmountReasonRespond byStatusAssigned todsp_00\""
+    },
+    {
+      "page": "build-request-priya",
+      "viewport": "mobile",
+      "kind": "small-tap-target",
+      "detail": "2: input \"\" 16x16 | input \"\" 16x16"
+    }
+  ],
+  "timings": [
+    {
+      "page": "sign-in",
+      "viewport": "desktop",
+      "ms": 707
+    },
+    {
+      "page": "portal-maria",
+      "viewport": "desktop",
+      "ms": 695
+    },
+    {
+      "page": "refunds-queue-maria",
+      "viewport": "desktop",
+      "ms": 1067
+    },
+    {
+      "page": "refunds-lookup-maria",
+      "viewport": "desktop",
+      "ms": 812
+    },
+    {
+      "page": "refunds-request-maria",
+      "viewport": "desktop",
+      "ms": 679
+    },
+    {
+      "page": "refund-detail-maria",
+      "viewport": "desktop",
+      "ms": 968
+    },
+    {
+      "page": "customer-maria",
+      "viewport": "desktop",
+      "ms": 1914
+    },
+    {
+      "page": "portal-alex",
+      "viewport": "desktop",
+      "ms": 674
+    },
+    {
+      "page": "audit-alex",
+      "viewport": "desktop",
+      "ms": 1160
+    },
+    {
+      "page": "refund-detail-alex-masked",
+      "viewport": "desktop",
+      "ms": 905
+    },
+    {
+      "page": "evidence-pack",
+      "viewport": "desktop",
+      "ms": 705
+    },
+    {
+      "page": "audit-diffs",
+      "viewport": "desktop",
+      "ms": 942
+    },
+    {
+      "page": "chargebacks-queue-alex-masked",
+      "viewport": "desktop",
+      "ms": 822
+    },
+    {
+      "page": "chargebacks-detail-alex-masked",
+      "viewport": "desktop",
+      "ms": 1048
+    },
+    {
+      "page": "customer-alex-masked",
+      "viewport": "desktop",
+      "ms": 954
+    },
+    {
+      "page": "portal-admin",
+      "viewport": "desktop",
+      "ms": 693
+    },
+    {
+      "page": "insights-admin",
+      "viewport": "desktop",
+      "ms": 777
+    },
+    {
+      "page": "admin-overview",
+      "viewport": "desktop",
+      "ms": 717
+    },
+    {
+      "page": "admin-tool-catalog",
+      "viewport": "desktop",
+      "ms": 857
+    },
+    {
+      "page": "admin-access-matrix",
+      "viewport": "desktop",
+      "ms": 824
+    },
+    {
+      "page": "build-requests-admin",
+      "viewport": "desktop",
+      "ms": 736
+    },
+    {
+      "page": "build-request-pending-admin",
+      "viewport": "desktop",
+      "ms": 1074
+    },
+    {
+      "page": "build-impact-admin",
+      "viewport": "desktop",
+      "ms": 715
+    },
+    {
+      "page": "refunds-queue-dan",
+      "viewport": "desktop",
+      "ms": 803
+    },
+    {
+      "page": "refund-detail-dan",
+      "viewport": "desktop",
+      "ms": 751
+    },
+    {
+      "page": "approvals-dan",
+      "viewport": "desktop",
+      "ms": 958
+    },
+    {
+      "page": "chargebacks-writeoff-dan",
+      "viewport": "desktop",
+      "ms": 1000
+    },
+    {
+      "page": "approvals-priya-own-request",
+      "viewport": "desktop",
+      "ms": 708
+    },
+    {
+      "page": "build-request-priya",
+      "viewport": "desktop",
+      "ms": 731
+    },
+    {
+      "page": "build-change-request-priya",
+      "viewport": "desktop",
+      "ms": 651
+    },
+    {
+      "page": "build-requests-priya",
+      "viewport": "desktop",
+      "ms": 647
+    },
+    {
+      "page": "build-request-simulation-priya",
+      "viewport": "desktop",
+      "ms": 974
+    },
+    {
+      "page": "access-reviews",
+      "viewport": "desktop",
+      "ms": 724
+    },
+    {
+      "page": "access-review-in-progress",
+      "viewport": "desktop",
+      "ms": 820
+    },
+    {
+      "page": "search-chris",
+      "viewport": "desktop",
+      "ms": 677
+    },
+    {
+      "page": "chargebacks-queue-olivia",
+      "viewport": "desktop",
+      "ms": 805
+    },
+    {
+      "page": "access-not-provisioned",
+      "viewport": "desktop",
+      "ms": 654
+    },
+    {
+      "page": "sign-in",
+      "viewport": "mobile",
+      "ms": 662
+    },
+    {
+      "page": "portal-maria",
+      "viewport": "mobile",
+      "ms": 673
+    },
+    {
+      "page": "refunds-queue-maria",
+      "viewport": "mobile",
+      "ms": 813
+    },
+    {
+      "page": "refunds-request-maria",
+      "viewport": "mobile",
+      "ms": 638
+    },
+    {
+      "page": "customer-maria",
+      "viewport": "mobile",
+      "ms": 938
+    },
+    {
+      "page": "audit-alex",
+      "viewport": "mobile",
+      "ms": 912
+    },
+    {
+      "page": "refund-detail-dan",
+      "viewport": "mobile",
+      "ms": 943
+    },
+    {
+      "page": "approvals-dan",
+      "viewport": "mobile",
+      "ms": 868
+    },
+    {
+      "page": "insights-admin",
+      "viewport": "mobile",
+      "ms": 749
+    },
+    {
+      "page": "admin-access-matrix",
+      "viewport": "mobile",
+      "ms": 808
+    },
+    {
+      "page": "chargebacks-queue-olivia",
+      "viewport": "mobile",
+      "ms": 780
+    },
+    {
+      "page": "build-request-priya",
+      "viewport": "mobile",
+      "ms": 651
+    }
+  ],
+  "flows": [
+    {
+      "flow": "maria-request-refund",
+      "step": "portal",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "maria-request-refund",
+      "step": "open refunds",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "maria-request-refund",
+      "step": "start new request",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "maria-request-refund",
+      "step": "find transaction",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "maria-request-refund",
+      "step": "choose transaction",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "maria-request-refund",
+      "step": "fill and submit",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "maria-request-refund",
+      "step": "TOTAL",
+      "ok": true,
+      "clicks": 5
+    },
+    {
+      "flow": "dan-approve-from-inbox",
+      "step": "portal",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "dan-approve-from-inbox",
+      "step": "open notifications",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "dan-approve-from-inbox",
+      "step": "open approvals",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "dan-approve-from-inbox",
+      "step": "approve first",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "dan-approve-from-inbox",
+      "step": "TOTAL",
+      "ok": true,
+      "clicks": 3
+    },
+    {
+      "flow": "olivia-work-dispute",
+      "step": "queue",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "olivia-work-dispute",
+      "step": "open first unassigned",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "olivia-work-dispute",
+      "step": "pick up",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "olivia-work-dispute",
+      "step": "save evidence note",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "olivia-work-dispute",
+      "step": "mark won",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "olivia-work-dispute",
+      "step": "TOTAL",
+      "ok": true,
+      "clicks": 4
+    },
+    {
+      "flow": "maria-command-search",
+      "step": "portal",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "maria-command-search",
+      "step": "open search with keyboard",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "maria-command-search",
+      "step": "type a transaction id",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "maria-command-search",
+      "step": "open result",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "maria-command-search",
+      "step": "TOTAL",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "priya-request-change",
+      "step": "open build",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "priya-request-change",
+      "step": "change tab",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "priya-request-change",
+      "step": "fill request",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "priya-request-change",
+      "step": "submit",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "priya-request-change",
+      "step": "TOTAL",
+      "ok": true,
+      "clicks": 3
+    },
+    {
+      "flow": "mobile-nav",
+      "step": "open menu",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "mobile-nav",
+      "step": "open account menu",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "mobile-nav",
+      "step": "search from phone",
+      "ok": true,
+      "clicks": 1
+    }
+  ]
+}
