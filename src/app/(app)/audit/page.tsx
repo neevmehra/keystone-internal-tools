@@ -48,18 +48,18 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
           <div className="leading-tight">
             <p className="text-xs">{humanize(e.entityType)}</p>
             <p className="max-w-40 truncate font-mono text-[11px] text-muted-foreground">{e.entityId}</p>
-            <div className="mt-1 flex items-center gap-2 text-[11px]">
+            <div className="mt-0.5 -ml-1 flex items-center gap-0.5 text-[11px]">
               {(() => {
                 const href = recordHref(e);
                 return (
                   href && (
-                    <Link href={href} className="inline-flex items-center gap-0.5 text-primary hover:underline">
+                    <Link href={href} className="inline-flex min-h-6 items-center gap-0.5 rounded px-1 text-primary hover:bg-primary/5 hover:underline">
                       Open <ExternalLink className="size-3" />
                     </Link>
                   )
                 );
               })()}
-              <Link href={historyHref(e)} className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-foreground">
+              <Link href={historyHref(e)} className="inline-flex min-h-6 items-center gap-0.5 rounded px-1 text-muted-foreground hover:bg-muted hover:text-foreground">
                 <History className="size-3" /> History
               </Link>
             </div>

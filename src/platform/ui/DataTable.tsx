@@ -92,6 +92,7 @@ export function DataTable({ columns, rows, total, page, pageSize, sort, dir, fil
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
   const align = (id: string) => columns.find((c) => c.id === id)?.align;
+  const colClass = (id: string) => columns.find((c) => c.id === id)?.className;
   const primaryColumn = columns[0]?.id;
 
   // Whole-row click is a convenience; the primary cell is the real link, so
@@ -138,7 +139,7 @@ export function DataTable({ columns, rows, total, page, pageSize, sort, dir, fil
                     <TableHead
                       key={h.id}
                       aria-sort={sortable && active ? (dir === "desc" ? "descending" : "ascending") : undefined}
-                      className={cn("h-9 text-xs text-muted-foreground", align(h.column.id) === "right" && "text-right")}
+                      className={cn("h-9 text-xs text-muted-foreground", align(h.column.id) === "right" && "text-right", colClass(h.column.id))}
                     >
                       {sortable ? (
                         <button
@@ -180,7 +181,7 @@ export function DataTable({ columns, rows, total, page, pageSize, sort, dir, fil
                     const content = flexRender(cell.column.columnDef.cell, cell.getContext());
                     const href = row.original.href;
                     return (
-                      <TableCell key={cell.id} className={cn("py-2 text-sm", align(cell.column.id) === "right" && "text-right")}>
+                      <TableCell key={cell.id} className={cn("py-2 text-sm", align(cell.column.id) === "right" && "text-right", colClass(cell.column.id))}>
                         {href && cell.column.id === primaryColumn ? (
                           <Link
                             href={href}

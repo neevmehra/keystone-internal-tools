@@ -92,13 +92,13 @@ export const customerPanels: CustomerPanel[] = [
         <ul className="divide-y text-sm">
           {rows.map((d) => (
             <li key={d.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
-              <Link href={`/tools/chargebacks/${d.id}`} className="shrink-0 font-mono text-xs text-primary hover:underline">
+              <Link href={`/tools/chargebacks/${d.id}`} className="-my-1 inline-flex min-h-8 shrink-0 items-center font-mono text-xs text-primary hover:underline">
                 {d.id}
               </Link>
-              <span className="min-w-0 flex-1 truncate text-muted-foreground" title={reasonLabel(d.reasonCode)}>{reasonLabel(d.reasonCode)}</span>
-              <span className="tabular-nums">{formatCurrency(d.amountCents)}</span>
+              <span className="order-last min-w-0 basis-full truncate text-xs text-muted-foreground sm:order-none sm:flex-1 sm:basis-auto sm:text-sm" title={reasonLabel(d.reasonCode)}>{reasonLabel(d.reasonCode)}</span>
+              <span className="ml-auto tabular-nums sm:ml-0">{formatCurrency(d.amountCents)}</span>
               <StatusBadge status={STATUS_LABELS[d.status as DisputeStatus] ?? d.status} tone={statusTone(d.status)} />
-              <RelativeTime date={d.openedAt} className="w-20 shrink-0 text-right text-xs text-muted-foreground" />
+              <RelativeTime date={d.openedAt} className="hidden w-20 shrink-0 text-right text-xs text-muted-foreground sm:block" />
             </li>
           ))}
         </ul>

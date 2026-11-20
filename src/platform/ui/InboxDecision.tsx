@@ -42,7 +42,7 @@ export function InboxDecision({ requestId, summary }: { requestId: string; summa
   if (rejecting) {
     return (
       <form
-        className="flex items-center justify-end gap-1.5"
+        className="flex flex-wrap items-center justify-end gap-1.5"
         onSubmit={(e) => {
           e.preventDefault();
           decide("reject");
@@ -85,11 +85,11 @@ export function InboxDecision({ requestId, summary }: { requestId: string; summa
   }
 
   return (
-    <div className="flex items-center justify-end gap-1.5">
-      <Button size="sm" className="h-8" disabled={pending} onClick={() => decide("approve")}>
+    <div className="flex flex-col items-stretch gap-1.5 sm:flex-row sm:items-center sm:justify-end">
+      <Button size="sm" variant="outline" className="h-8 text-primary hover:bg-primary/5 hover:text-primary" disabled={pending} onClick={() => decide("approve")}>
         <Check /> {pending ? "Approving…" : "Approve"}
       </Button>
-      <Button size="sm" variant="outline" className="h-8 text-destructive hover:text-destructive" disabled={pending} onClick={() => setRejecting(true)}>
+      <Button size="sm" variant="ghost" className="h-8 text-muted-foreground hover:bg-destructive/5 hover:text-destructive" disabled={pending} onClick={() => setRejecting(true)}>
         Reject…
       </Button>
     </div>

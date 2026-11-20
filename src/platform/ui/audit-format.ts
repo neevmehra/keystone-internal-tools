@@ -69,7 +69,7 @@ export function formatAuditValue(field: string, value: unknown): string | null {
   }
   if (Array.isArray(value)) return value.map((v) => (typeof v === "object" ? JSON.stringify(v) : String(v))).join(", ");
   if (typeof value === "object") return JSON.stringify(value);
-  if (typeof value === "string" && isStatusField(field)) return humanize(value);
+  if (typeof value === "string" && (isStatusField(field) || /^[a-z]+(_[a-z]+)+$/.test(value))) return humanize(value);
   return String(value);
 }
 

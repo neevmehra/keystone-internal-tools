@@ -150,7 +150,7 @@ export async function getCustomerTimeline(user: CurrentUser, customerId: string,
             at: e.createdAt,
             tool: target.tool,
             kind: eventTitle(e.action),
-            title: isCustomer ? `by ${e.actorName}` : `${humanize(target.entityType)} ${target.entityId} · by ${e.actorName}`,
+            title: isCustomer ? `by ${e.actorName}` : `${humanize(target.entityType)} ${target.entityId} by ${e.actorName}`,
             href: toolRecord
               ? `/tools/${target.tool}/${encodeURIComponent(target.entityId)}`
               : hasPermission(user, "audit:read")

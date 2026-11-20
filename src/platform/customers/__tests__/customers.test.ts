@@ -190,7 +190,7 @@ describe("activity timeline", () => {
     const fromAudit = items.filter((i) => i.id.startsWith("audit:"));
     // The creation event duplicates the refund's own row, so it's left out.
     expect(fromAudit).toHaveLength(1);
-    expect(fromAudit[0]).toMatchObject({ kind: "Refund retried", title: `Refund ${refund.id} · by Dan Weber`, href: `/tools/refunds/${refund.id}` });
+    expect(fromAudit[0]).toMatchObject({ kind: "Refund retried", title: `Refund ${refund.id} by Dan Weber`, href: `/tools/refunds/${refund.id}` });
     expect(items.some((i) => i.kind.includes("Activity") || i.title.includes("refund.request"))).toBe(false);
   });
 
