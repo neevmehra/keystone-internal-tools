@@ -72,3 +72,61 @@ jobs:
           name: screenshots
           path: e2e/artifacts/
           if-no-files-found: ignore
+
+  # Real SSO: starts Keycloak from docker-compose.yml (realm imported from
+  # keycloak/realm-export.json), runs the app with AUTH_MODE=oidc against it,
+  # and signs in through Keycloak's login page as several users.
+  sso:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: file:./sso.db
+      AUTH_SECRET: ci-only-secret-not-used-anywhere
+      AUTH_MODE: oidc
+      AUTH_URL: http://localhost:3000
+      OIDC_ISSUER: http://localhost:8080/realms/keystone
+      OIDC_CLIENT_ID: keystone
+      OIDC_CLIENT_SECRET: keystone-dev-secret
+      OIDC_GROUPS_CLAIM: groups
+      FAKE_PAYMENTS_FAIL_RATE: "0"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start Keycloak
+        run: docker compose up -d keycloak
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Migrate and seed
+        run: npm run db:reset
+      - name: Wait for Keycloak realm
+        run: |
+          for i in $(seq 1 90); do
+            if curl -fsS -o /dev/null "$OIDC_ISSUER/.well-known/openid-configuration"; then echo "realm is up"; exit 0; fi
+            sleep 2
+          done
+          echo "Keycloak did not start"; docker compose logs keycloak | tail -n 100; exit 1
+      - name: Start app
+        run: |
+          npx next dev --port 3000 > e2e-dev-server.log 2>&1 &
+          for i in $(seq 1 90); do
+            if curl -fsS -o /dev/null http://localhost:3000/sign-in; then echo "app is up"; exit 0; fi
+            sleep 2
+          done
+          echo "app did not start"; cat e2e-dev-server.log; exit 1
+      - name: SSO test
+        run: npx tsx e2e/sso.ts
+      - name: Logs on failure
+        if: failure()
+        run: |
+          tail -n 200 e2e-dev-server.log || true
+          docker compose logs keycloak | tail -n 100
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sso-screenshots
+          path: e2e/artifacts/
+          if-no-files-found: ignore
