@@ -1,0 +1,63 @@
+name: UI review
+
+# Runs the app with seeded data, captures every screen on desktop and mobile,
+# walks the main user flows, runs accessibility and layout checks, and pushes
+# the screenshots and REPORT.md to the branch ui-review-output/<branch>.
+# Not a merge gate: it's for design review.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["ui/**", "main"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ui-review-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: file:./review.db
+      AUTH_SECRET: ci-only-secret-not-used-anywhere
+      AUTH_MODE: mock
+      FAKE_PAYMENTS_FAIL_RATE: "0"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Migrate and seed
+        run: npm run db:reset
+      - name: Start app
+        run: |
+          npx next dev --port 3000 > review-dev-server.log 2>&1 &
+          for i in $(seq 1 90); do
+            if curl -fsS -o /dev/null http://localhost:3000/sign-in; then echo "app is up"; exit 0; fi
+            sleep 2
+          done
+          echo "app did not start"; cat review-dev-server.log; exit 1
+      - name: Review
+        run: npx tsx e2e/review.ts
+      - name: Publish to ui-review-output branch
+        if: always()
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="ui-review-output/$(echo "${GITHUB_REF_NAME}" | tr '/' '-')"
+          cp review-dev-server.log e2e/review/out/ 2>/dev/null || true
+          cd e2e/review/out
+          git init -q
+          git checkout -q -b out
+          git add -A
+          git -c user.name="ui-review" -c user.email="ui-review@users.noreply.github.com" commit -qm "UI review of ${GITHUB_SHA}"
+          git push -qf "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "out:${BRANCH}"
+          echo "Published to ${BRANCH}"
