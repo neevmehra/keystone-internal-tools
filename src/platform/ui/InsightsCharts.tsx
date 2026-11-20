@@ -2,8 +2,10 @@
 
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-// One accent (the brand primary) plus neutral greys, per the design direction.
-const SERIES = ["var(--primary)", "var(--chart-3)", "var(--chart-2)", "var(--chart-4)", "var(--chart-5)", "var(--chart-1)"];
+// Categorical palette for per-tool series: distinct hues of similar weight,
+// each at least 3:1 against white, and still separable with common color-vision
+// deficiencies (blue / orange / teal / magenta / olive / slate).
+const SERIES = ["#4f46e5", "#d97706", "#0d9488", "#c026d3", "#65a30d", "#64748b", "#0284c7", "#e11d48"];
 const AXIS = { fontSize: 11, fill: "var(--muted-foreground)" };
 const TOOLTIP_STYLE = { fontSize: 12, borderRadius: 8, border: "1px solid var(--border)", background: "var(--popover)" };
 
@@ -40,7 +42,7 @@ export function ActionsPerDayChart({
           <XAxis dataKey="date" tick={AXIS} tickLine={false} axisLine={false} tickFormatter={(d: string) => d.slice(5)} minTickGap={24} />
           <YAxis allowDecimals={false} tick={AXIS} tickLine={false} axisLine={false} />
           <Tooltip contentStyle={TOOLTIP_STYLE} />
-          <Legend wrapperStyle={{ fontSize: 12 }} iconType="plainline" />
+          <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} iconType="circle" iconSize={8} />
           {tools.map((tool, i) => (
             <Line
               key={tool}
@@ -48,7 +50,7 @@ export function ActionsPerDayChart({
               dataKey={tool}
               name={labels[tool] ?? tool}
               stroke={SERIES[i % SERIES.length]}
-              strokeWidth={i === 0 ? 2 : 1.5}
+              strokeWidth={2}
               dot={false}
               isAnimationActive={false}
             />

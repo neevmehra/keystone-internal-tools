@@ -53,13 +53,14 @@ export async function QueuePage({ searchParams }: { searchParams: Promise<Search
         ]}
       />
       <DataTable
+        label="Refunds"
         columns={[
           { id: "id", header: "Refund" },
           { id: "customer", header: "Customer" },
           { id: "amountCents", header: "Amount", sortable: true, align: "right" },
-          { id: "reason", header: "Reason" },
+          { id: "reason", header: "Reason", className: "hidden md:table-cell" },
           { id: "status", header: "Status" },
-          { id: "requestedBy", header: "Requested by" },
+          { id: "requestedBy", header: "Requested by", className: "hidden lg:table-cell" },
           { id: "createdAt", header: "Requested", sortable: true },
         ]}
         rows={rows.map((r) => ({

@@ -48,14 +48,15 @@ export async function QueuePage({ searchParams }: { searchParams: Promise<Search
         ]}
       />
       <DataTable
+        label="Disputes"
         columns={[
           { id: "id", header: "Dispute" },
           { id: "customerEmail", header: "Customer" },
           { id: "amountCents", header: "Amount", sortable: true, align: "right" },
-          { id: "reason", header: "Reason" },
+          { id: "reason", header: "Reason", className: "hidden md:table-cell" },
           { id: "respondBy", header: "Respond by", sortable: true },
           { id: "status", header: "Status", sortable: true },
-          { id: "assignee", header: "Assigned to" },
+          { id: "assignee", header: "Assigned to", className: "hidden md:table-cell" },
         ]}
         rows={rows.map((r) => ({
           id: r.id,

@@ -92,14 +92,14 @@ export const customerPanels: CustomerPanel[] = [
       return (
         <ul className="divide-y text-sm">
           {rows.map((r) => (
-            <li key={r.id} className="flex items-center gap-3 py-2">
-              <Link href={`/tools/refunds/${r.id}`} className="font-mono text-xs text-primary hover:underline">
+            <li key={r.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
+              <Link href={`/tools/refunds/${r.id}`} className="-my-1 inline-flex min-h-8 shrink-0 items-center font-mono text-xs text-primary hover:underline">
                 {r.id}
               </Link>
-              <span className="truncate text-muted-foreground">{humanize(r.reason)}</span>
-              <span className="ml-auto tabular-nums">{formatCurrency(r.amountCents)}</span>
+              <span className="order-last min-w-0 basis-full truncate text-xs text-muted-foreground sm:order-none sm:flex-1 sm:basis-auto sm:text-sm" title={humanize(r.reason)}>{humanize(r.reason)}</span>
+              <span className="ml-auto tabular-nums sm:ml-0">{formatCurrency(r.amountCents)}</span>
               <StatusBadge status={r.effectiveStatus} />
-              <RelativeTime date={r.createdAt} className="w-20 text-right text-xs text-muted-foreground" />
+              <RelativeTime date={r.createdAt} className="hidden w-20 shrink-0 text-right text-xs text-muted-foreground sm:block" />
             </li>
           ))}
         </ul>

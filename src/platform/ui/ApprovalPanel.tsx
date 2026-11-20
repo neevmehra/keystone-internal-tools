@@ -4,6 +4,7 @@ import type { CurrentUser } from "@/platform/auth/types";
 import { hasPermission } from "@/platform/rbac";
 import { ApprovalButtons } from "./ApprovalButtons";
 import { EmptyState } from "./EmptyState";
+import { humanize } from "./labels";
 import { Money } from "./Money";
 import { RelativeTime } from "./RelativeTime";
 import { StatusBadge } from "./StatusBadge";
@@ -32,7 +33,9 @@ export function ApprovalPanel({ request, user }: { request: ApprovalRequest | nu
     <div className="rounded-lg border bg-card">
       <div className="flex items-center justify-between border-b px-4 py-2.5">
         <h3 className="text-sm font-semibold">Approval</h3>
-        <span className="font-mono text-[11px] text-muted-foreground">{request.actionType}</span>
+        <span className="text-xs text-muted-foreground" title={request.actionType}>
+          {humanize(request.actionType.split(".").pop() ?? request.actionType)}
+        </span>
       </div>
       <dl className="space-y-2 px-4 py-3 text-sm">
         {rows

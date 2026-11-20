@@ -2,8 +2,9 @@
 
 import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition, type ReactNode } from "react";
+import { useEffect, useMemo, useState, useTransition, type MouseEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -29,13 +30,18 @@ type Props = {
   filters?: DataTableFilter[];
   filterValues?: Record<string, string>;
   emptyState?: ReactNode;
+  /** Names the scrollable table region for screen readers, e.g. "Refunds". */
+  label?: string;
 };
+
+/** Clicks on these inside a row do their own thing; the row doesn't navigate. */
+const INTERACTIVE = "a, button, input, select, textarea, label, summary, [role=button], [role=menuitem]";
 
 /**
  * Server-driven table: paging, sorting and filters live in the URL, so views
  * are shareable links. The server fetches only the current page.
  */
-export function DataTable({ columns, rows, total, page, pageSize, sort, dir, filters = [], filterValues = {}, emptyState }: Props) {
+export function DataTable({ columns, rows, total, page, pageSize, sort, dir, filters = [], filterValues = {}, emptyState, label = "Results" }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -86,6 +92,17 @@ export function DataTable({ columns, rows, total, page, pageSize, sort, dir, fil
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
   const align = (id: string) => columns.find((c) => c.id === id)?.align;
+  const colClass = (id: string) => columns.find((c) => c.id === id)?.className;
+  const primaryColumn = columns[0]?.id;
+
+  // Whole-row click is a convenience; the primary cell is the real link, so
+  // keyboard, Cmd/Ctrl-click and middle-click behave like any other link.
+  const openRow = (href: string, e: MouseEvent<HTMLTableRowElement>) => {
+    if ((e.target as HTMLElement).closest(INTERACTIVE)) return;
+    if (window.getSelection()?.toString()) return;
+    if (e.metaKey || e.ctrlKey || e.button === 1) window.open(href, "_blank", "noopener");
+    else router.push(href);
+  };
 
   return (
     <div className="space-y-3">
@@ -102,8 +119,15 @@ export function DataTable({ columns, rows, total, page, pageSize, sort, dir, fil
         </div>
       )}
       <div className={cn("relative overflow-hidden rounded-lg border bg-card transition-opacity", pending && "opacity-60")}>
-        {pending && <div className="absolute inset-x-0 top-0 h-0.5 animate-pulse bg-primary" />}
-        <Table>
+        {pending && <div className="absolute inset-x-0 top-0 z-10 h-0.5 animate-pulse bg-primary" />}
+        <Table
+          containerProps={{
+            role: "region",
+            "aria-label": `${label} table`,
+            tabIndex: 0,
+            className: "focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none focus-visible:ring-inset",
+          }}
+        >
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (
               <TableRow key={hg.id} className="bg-muted/40 hover:bg-muted/40">
@@ -112,12 +136,19 @@ export function DataTable({ columns, rows, total, page, pageSize, sort, dir, fil
                   const active = sort === h.column.id;
                   const Icon = !active ? ArrowUpDown : dir === "desc" ? ArrowDown : ArrowUp;
                   return (
-                    <TableHead key={h.id} className={cn("h-9 text-xs", align(h.column.id) === "right" && "text-right")}>
+                    <TableHead
+                      key={h.id}
+                      aria-sort={sortable && active ? (dir === "desc" ? "descending" : "ascending") : undefined}
+                      className={cn("h-9 text-xs text-muted-foreground", align(h.column.id) === "right" && "text-right", colClass(h.column.id))}
+                    >
                       {sortable ? (
                         <button
                           type="button"
                           onClick={() => toggleSort(h.column.id)}
-                          className={cn("inline-flex items-center gap-1 hover:text-foreground", active && "text-foreground")}
+                          className={cn(
+                            "-mx-1.5 inline-flex min-h-8 items-center gap-1 rounded-md px-1.5 font-medium hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none",
+                            active && "text-foreground",
+                          )}
                         >
                           {flexRender(h.column.columnDef.header, h.getContext())}
                           <Icon className={cn("size-3", !active && "opacity-40")} />
@@ -142,14 +173,28 @@ export function DataTable({ columns, rows, total, page, pageSize, sort, dir, fil
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className={cn(row.original.href && "cursor-pointer")}
-                  onClick={row.original.href ? () => router.push(row.original.href!) : undefined}
+                  className={cn(row.original.href && "cursor-pointer focus-within:bg-muted/50")}
+                  onClick={row.original.href ? (e) => openRow(row.original.href!, e) : undefined}
+                  onAuxClick={row.original.href ? (e) => e.button === 1 && openRow(row.original.href!, e) : undefined}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className={cn("py-2 text-sm", align(cell.column.id) === "right" && "text-right")}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const content = flexRender(cell.column.columnDef.cell, cell.getContext());
+                    const href = row.original.href;
+                    return (
+                      <TableCell key={cell.id} className={cn("py-2 text-sm", align(cell.column.id) === "right" && "text-right", colClass(cell.column.id))}>
+                        {href && cell.column.id === primaryColumn ? (
+                          <Link
+                            href={href}
+                            className="-mx-1 -my-0.5 block rounded-sm px-1 py-0.5 font-medium text-foreground underline-offset-2 hover:text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
+                          >
+                            {content}
+                          </Link>
+                        ) : (
+                          content
+                        )}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             )}

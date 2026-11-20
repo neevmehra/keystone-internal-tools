@@ -37,6 +37,7 @@ export function ApprovalButtons({ requestId, canDecide, canExecute }: { requestI
             <Button
               size="sm"
               variant="destructive"
+              className="text-red-700 hover:text-red-800"
               disabled={pending}
               onClick={() => (reason.trim() ? go(() => rejectRequestAction(requestId, reason)) : toast.error("Add a reason to reject."))}
             >

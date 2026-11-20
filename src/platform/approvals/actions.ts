@@ -50,13 +50,15 @@ export async function executeRequestAction(requestId: string) {
 }
 
 /**
- * Inbox decision: approve or reject, both with a required reason. Goes
- * through the same engine rules (no self-approval, permission, audit).
+ * Inbox decision. Approve takes an optional note; reject needs a reason. Both
+ * go through the same engine rules (no self-approval, permission, audit).
  */
-export async function decideFromInboxAction(requestId: string, decision: "approve" | "reject", reason: string) {
+export async function decideFromInboxAction(requestId: string, decision: "approve" | "reject", reason?: string) {
   const trimmed = typeof reason === "string" ? reason.trim().slice(0, 2000) : "";
-  if (!trimmed) return { ok: false, message: "Add a reason for your decision." } satisfies ApprovalActionResult;
-  if (decision === "reject") return rejectRequestAction(requestId, trimmed);
-  if (decision === "approve") return approveRequestAction(requestId, trimmed);
+  if (decision === "approve") return approveRequestAction(requestId, trimmed || undefined);
+  if (decision === "reject") {
+    if (!trimmed) return { ok: false, message: "Add a reason for rejecting." } satisfies ApprovalActionResult;
+    return rejectRequestAction(requestId, trimmed);
+  }
   return { ok: false, message: "Unknown decision." } satisfies ApprovalActionResult;
 }

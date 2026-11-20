@@ -1,4 +1,4 @@
-import { BarChart3, CheckCheck, Inbox, Send } from "lucide-react";
+import { ArrowUpRight, BarChart3, CheckCheck, Inbox, Send } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { INBOX_SORTABLE, inboxTools, listInbox, parseInboxTab, type InboxItem, type InboxTab } from "@/platform/approvals/inbox";
@@ -6,7 +6,8 @@ import { requirePagePermission } from "@/platform/auth";
 import { cn } from "@/lib/utils";
 import { DataTable, type DataTableColumn, type DataTableRow } from "@/platform/ui/DataTable";
 import { EmptyState } from "@/platform/ui/EmptyState";
-import { humanize } from "@/platform/ui/format";
+import { formatCurrency } from "@/platform/ui/format";
+import { humanize, toolLabel } from "@/platform/ui/labels";
 import { InboxDecision } from "@/platform/ui/InboxDecision";
 import { Money } from "@/platform/ui/Money";
 import { PageHeader } from "@/platform/ui/PageHeader";
@@ -26,26 +27,53 @@ const EMPTY: Record<InboxTab, { icon: React.ReactNode; title: string; descriptio
   mine: { icon: <Send />, title: "No requests from you", description: "Anything you send for approval shows up here with its status." },
 };
 
+/** Where the approver can see the full record before deciding. */
+function recordLink(r: InboxItem): string | null {
+  if (r.recordHref) return r.recordHref;
+  if (r.entityType === "ToolRequest") return `/build/requests/${encodeURIComponent(r.entityId)}`;
+  return null;
+}
+
+function whatLabel(r: InboxItem) {
+  return humanize(r.actionType.split(".").pop() ?? r.actionType);
+}
+
 function what(r: InboxItem) {
-  const label = (
-    <div className="leading-tight">
-      <p>{humanize(r.actionType.split(".").pop() ?? r.actionType)}</p>
-      <p className="max-w-48 truncate font-mono text-[11px] text-muted-foreground">
-        {r.entityType} {r.entityId}
-      </p>
-    </div>
+  const href = recordLink(r);
+  const body = (
+    <span className="block leading-tight">
+      <span className="flex items-center gap-1 font-medium text-foreground group-hover:text-primary group-hover:underline">
+        {whatLabel(r)}
+        {href && <ArrowUpRight className="size-3 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />}
+      </span>
+      <span className="block max-w-56 truncate font-mono text-[11px] text-muted-foreground" title={`${r.entityType} ${r.entityId}`}>
+        {humanize(r.entityType)} {r.entityId}
+      </span>
+      <span className="mt-0.5 block text-[11px] whitespace-normal text-muted-foreground md:hidden">
+        {r.amountCents != null && <span className="font-medium text-foreground tabular-nums sm:hidden">{formatCurrency(r.amountCents)} · </span>}
+        {toolLabel(r.tool)} · {r.requestedByName}
+        {r.isOwn ? " (you)" : ""} · <RelativeTime date={r.createdAt} className="text-muted-foreground" />
+      </span>
+    </span>
   );
-  return r.recordHref ? (
-    <Link href={r.recordHref} className="hover:underline">
-      {label}
+  return href ? (
+    <Link
+      href={href}
+      className="group -mx-1 -my-0.5 block rounded-sm px-1 py-0.5 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
+      title="Open the record to check it before deciding"
+    >
+      {body}
     </Link>
   ) : (
-    label
+    body
   );
 }
 
 function decisionCell(r: InboxItem, tab: InboxTab) {
-  if (r.canDecide) return <InboxDecision requestId={r.id} />;
+  if (r.canDecide) {
+    const amount = r.amountCents != null ? ` ${formatCurrency(r.amountCents)}` : "";
+    return <InboxDecision requestId={r.id} summary={`${whatLabel(r)}${amount} for ${r.requestedByName}`} />;
+  }
   if (r.status === "pending" && r.isOwn) {
     return <span className="text-xs text-muted-foreground">Waiting on someone else</span>;
   }
@@ -74,25 +102,25 @@ export default async function ApprovalsPage({ searchParams }: { searchParams: Pr
   ]);
 
   const columns: DataTableColumn[] = [
-    { id: "tool", header: "Tool", sortable: true },
-    { id: "what", header: "What" },
-    { id: "amountCents", header: "Amount", sortable: true, align: "right" },
-    { id: "requestedBy", header: "Requested by" },
-    { id: "createdAt", header: tab === "pending" ? "Age" : "Requested", sortable: true },
-    ...(tab === "decided" ? [{ id: "decidedAt", header: "Decided" }] : []),
+    { id: "tool", header: "Tool", sortable: true, className: "hidden md:table-cell" },
+    { id: "what", header: "What", className: "max-w-60 whitespace-normal" },
+    { id: "amountCents", header: "Amount", sortable: true, align: "right", className: "hidden sm:table-cell" },
+    { id: "requestedBy", header: "Requested by", className: "hidden md:table-cell" },
+    { id: "createdAt", header: tab === "pending" ? "Age" : "Requested", sortable: true, className: "hidden md:table-cell" },
+    ...(tab === "decided" ? [{ id: "decidedAt", header: "Decided", className: "hidden lg:table-cell" }] : []),
     { id: "decision", header: tab === "pending" ? "Decide" : "Outcome", align: "right" as const },
   ];
 
   const tableRows: DataTableRow[] = rows.map((r) => ({
     id: r.id,
     cells: {
-      tool: <span className="text-sm">{r.toolName}</span>,
+      tool: <span className="whitespace-nowrap">{toolLabel(r.tool)}</span>,
       what: what(r),
       amountCents: r.amountCents != null ? <Money cents={r.amountCents} /> : <span className="text-muted-foreground">—</span>,
       requestedBy: (
         <span>
           {r.requestedByName}
-          {r.isOwn && <span className="ml-1.5 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground">you</span>}
+          {r.isOwn && <span className="ml-1.5 rounded bg-muted px-1 py-0.5 text-[10px] text-zinc-700">you</span>}
         </span>
       ),
       createdAt: <RelativeTime date={r.createdAt} />,
@@ -130,6 +158,7 @@ export default async function ApprovalsPage({ searchParams }: { searchParams: Pr
         ))}
       </nav>
       <DataTable
+        label="Approvals"
         columns={columns}
         rows={tableRows}
         total={total}
@@ -138,7 +167,7 @@ export default async function ApprovalsPage({ searchParams }: { searchParams: Pr
         sort={params.sort}
         dir={params.dir}
         filterValues={params.filters}
-        filters={tools.length > 1 ? [{ id: "tool", label: "Tool", type: "select", options: tools.map((t) => ({ label: t, value: t })) }] : []}
+        filters={tools.length > 1 ? [{ id: "tool", label: "Tool", type: "select", options: tools.map((t) => ({ label: toolLabel(t), value: t })) }] : []}
         emptyState={<EmptyState {...EMPTY[tab]} />}
       />
     </div>

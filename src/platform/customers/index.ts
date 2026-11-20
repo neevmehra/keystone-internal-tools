@@ -12,7 +12,9 @@ import { db } from "@/platform/db";
 import type { CustomerActivity, CustomerPanel, CustomerSearchResult } from "@/platform/manifest";
 import { hasPermission, maskRecord, type PermissionHolder } from "@/platform/rbac";
 import { getTool, toolsForUser } from "@/platform/registry";
-import { formatCurrency, humanize } from "@/platform/ui/format";
+import { eventTitle } from "@/platform/ui/audit-format";
+import { formatCurrency } from "@/platform/ui/format";
+import { humanize } from "@/platform/ui/labels";
 import type { StatCard } from "@/platform/ui/StatCards";
 import { customerPanels as registeredPanels } from "@/tools/customer-panels";
 
@@ -116,30 +118,46 @@ export async function getCustomerTimeline(user: CurrentUser, customerId: string,
     ...panels.flatMap((p) => (p.activity ? [(take: number) => p.activity!(ctx, { take })] : [])),
   ];
 
-  // Audit history of the tools' records, plus (for auditors) who viewed this customer.
+  // Audit history of the tools' records, plus (for auditors) who viewed this
+  // customer. Creation events are left out: each record already appears as its
+  // own row ("Refund requested"), so only what happened afterwards is shown.
   const entityGroups = (await Promise.all(panels.map((p) => p.auditEntities?.(ctx) ?? Promise.resolve([])))).flat();
   const or = entityGroups.filter((g) => g.entityIds.length > 0).map((g) => ({ entityType: g.entityType, entityId: { in: g.entityIds } }));
   if (hasPermission(user, "audit:read")) or.push({ entityType: "Customer", entityId: { in: [customerId] } });
   if (or.length) {
     sources.push(async (take) => {
-      const where = { OR: or };
+      const where = {
+        AND: [{ OR: or }, { OR: [{ AND: [{ before: { not: null } }, { NOT: { before: "null" } }] }, { action: "customer.view" }] }],
+      };
       const [rows, total] = await Promise.all([
         db.auditEvent.findMany({ where, orderBy: [{ createdAt: "desc" }, { id: "asc" }], take }),
         db.auditEvent.count({ where }),
       ]);
+      // Approval events point at the approval; show the record it's about instead.
+      const approvalIds = rows.filter((r) => r.entityType === "ApprovalRequest").map((r) => r.entityId);
+      const approvals = approvalIds.length
+        ? await db.approvalRequest.findMany({ where: { id: { in: approvalIds } }, select: { id: true, tool: true, entityType: true, entityId: true } })
+        : [];
+      const subject = new Map(approvals.map((a) => [a.id, a]));
       return {
         total,
-        items: rows.map(toAuditView).map((e) => ({
-          id: `audit:${e.id}`,
-          at: e.createdAt,
-          tool: e.tool,
-          kind: "Activity",
-          title: `${e.actorName}: ${humanize(e.action)}`,
-          detail: `${e.entityType} ${e.entityId}`,
-          href: hasPermission(user, "audit:read")
-            ? `/audit?${new URLSearchParams({ entityType: e.entityType, entityId: e.entityId })}`
-            : undefined,
-        })),
+        items: rows.map(toAuditView).map((e): CustomerActivity => {
+          const target = subject.get(e.entityId) ?? { tool: e.tool, entityType: e.entityType, entityId: e.entityId };
+          const isCustomer = target.entityType === "Customer";
+          const toolRecord = getTool(target.tool) && !isCustomer;
+          return {
+            id: `audit:${e.id}`,
+            at: e.createdAt,
+            tool: target.tool,
+            kind: eventTitle(e.action),
+            title: isCustomer ? `by ${e.actorName}` : `${humanize(target.entityType)} ${target.entityId} by ${e.actorName}`,
+            href: toolRecord
+              ? `/tools/${target.tool}/${encodeURIComponent(target.entityId)}`
+              : hasPermission(user, "audit:read")
+                ? `/audit?${new URLSearchParams({ entityType: e.entityType, entityId: e.entityId })}`
+                : undefined,
+          };
+        }),
       };
     });
   }

@@ -9,6 +9,8 @@ import { hasPermission } from "@/platform/rbac";
 import { DataTable, type DataTableRow } from "@/platform/ui/DataTable";
 import { EmptyState } from "@/platform/ui/EmptyState";
 import { PageHeader } from "@/platform/ui/PageHeader";
+import { eventTitle } from "@/platform/ui/audit-format";
+import { humanize, roleLabel, toolLabel } from "@/platform/ui/labels";
 import { RelativeTime } from "@/platform/ui/RelativeTime";
 import { parseTableParams, type SearchParams } from "@/platform/ui/table-params";
 import { AuditDiff } from "./AuditDiff";
@@ -32,33 +34,38 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
         actorName: (
           <div className="leading-tight">
             <p>{e.actorName}</p>
-            <p className="font-mono text-[11px] text-muted-foreground">{e.actorRoles.join(", ") || "no role"}</p>
+            <p className="text-[11px] text-muted-foreground">{e.actorRoles.map(roleLabel).join(", ") || "No role"}</p>
           </div>
         ),
-        tool: <span className="font-mono text-xs">{e.tool}</span>,
-        action: <span className="font-mono text-xs">{e.action}</span>,
+        tool: <span className="whitespace-nowrap">{toolLabel(e.tool)}</span>,
+        action: (
+          <div className="leading-tight">
+            <p>{eventTitle(e.action)}</p>
+            <p className="font-mono text-[11px] text-muted-foreground">{e.action}</p>
+          </div>
+        ),
         entityType: (
           <div className="leading-tight">
-            <p className="text-xs">{e.entityType}</p>
+            <p className="text-xs">{humanize(e.entityType)}</p>
             <p className="max-w-40 truncate font-mono text-[11px] text-muted-foreground">{e.entityId}</p>
-            <div className="mt-1 flex items-center gap-2 text-[11px]">
+            <div className="mt-0.5 -ml-1 flex items-center gap-0.5 text-[11px]">
               {(() => {
                 const href = recordHref(e);
                 return (
                   href && (
-                    <Link href={href} className="inline-flex items-center gap-0.5 text-primary hover:underline">
+                    <Link href={href} className="inline-flex min-h-6 items-center gap-0.5 rounded px-1 text-primary hover:bg-primary/5 hover:underline">
                       Open <ExternalLink className="size-3" />
                     </Link>
                   )
                 );
               })()}
-              <Link href={historyHref(e)} className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-foreground">
+              <Link href={historyHref(e)} className="inline-flex min-h-6 items-center gap-0.5 rounded px-1 text-muted-foreground hover:bg-muted hover:text-foreground">
                 <History className="size-3" /> History
               </Link>
             </div>
           </div>
         ),
-        change: <AuditDiff before={e.before} after={e.after} />,
+        change: <AuditDiff action={e.action} before={e.before} after={e.after} />,
       },
     }));
 
@@ -78,6 +85,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
         }
       />
       <DataTable
+        label="Audit log"
         columns={[
           { id: "createdAt", header: "When", sortable: true },
           { id: "actorName", header: "Actor", sortable: true },
@@ -96,8 +104,8 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
         filters={[
           { id: "actor", label: "Actor", type: "text", placeholder: "Actor name" },
           { id: "action", label: "Action", type: "text", placeholder: "Action, e.g. approval" },
-          { id: "tool", label: "Tool", type: "select", options: facets.tools.map((t) => ({ label: t, value: t })) },
-          { id: "entityType", label: "Record", type: "select", options: facets.entityTypes.map((t) => ({ label: t, value: t })) },
+          { id: "tool", label: "Tool", type: "select", options: facets.tools.map((t) => ({ label: toolLabel(t), value: t })) },
+          { id: "entityType", label: "Record", type: "select", options: facets.entityTypes.map((t) => ({ label: humanize(t), value: t })) },
           { id: "entityId", label: "Record ID", type: "text", placeholder: "Record ID" },
           { id: "from", label: "From", type: "date" },
           { id: "to", label: "To", type: "date" },
