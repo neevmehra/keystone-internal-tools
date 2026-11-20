@@ -50,6 +50,13 @@ function dir(...p: string[]) {
   return d;
 }
 
+async function newContext(browser: Browser, options: Parameters<Browser["newContext"]>[0]) {
+  const context = await browser.newContext(options);
+  // tsx (esbuild keepNames) wraps named functions in __name(); define it in the page.
+  await context.addInitScript({ content: "window.__name = (f) => f;" });
+  return context;
+}
+
 async function signIn(context: BrowserContext, username: string) {
   const page = await context.newPage();
   await page.goto(`${BASE}/sign-in`, { timeout: NAV_TIMEOUT });
@@ -130,7 +137,7 @@ async function capturePages(browser: Browser, vp: Viewport) {
   for (const r of routes) byUser.set(r.as, [...(byUser.get(r.as) ?? []), r]);
   const outDir = dir(vp.name);
   for (const [username, list] of byUser) {
-    const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, isMobile: vp.isMobile, hasTouch: vp.isMobile });
+    const context = await newContext(browser, { viewport: { width: vp.width, height: vp.height }, isMobile: vp.isMobile, hasTouch: vp.isMobile });
     try {
       if (username) await signIn(context, username);
       const page = await context.newPage();
@@ -162,7 +169,7 @@ async function capturePages(browser: Browser, vp: Viewport) {
 
 /** A scripted task. Each step counts clicks and captures the screen after it. */
 async function flow(browser: Browser, name: string, as: string, steps: (s: Stepper) => Promise<void>) {
-  const context = await browser.newContext({ viewport: { width: DESKTOP.width, height: DESKTOP.height } });
+  const context = await newContext(browser, { viewport: { width: DESKTOP.width, height: DESKTOP.height } });
   const outDir = dir("flows");
   let n = 0;
   let clicks = 0;
@@ -221,7 +228,7 @@ async function flows(browser: Browser) {
     });
     await step("find transaction", async () => {
       await page.getByLabel("Find a transaction").fill("txn_000021");
-      await click(page.getByRole("button", { name: /find|search/i }).first());
+      await click(page.getByRole("button", { name: "Find", exact: true }));
       await page.getByText("txn_000021").first().waitFor({ timeout: 30_000 });
     });
     await step("choose transaction", async () => {
@@ -272,7 +279,7 @@ async function flows(browser: Browser) {
       await page.goto(`${BASE}/tools/chargebacks`, { timeout: NAV_TIMEOUT });
     });
     await step("open first unassigned", async () => {
-      await click(page.locator("table tbody tr a").first());
+      await click(page.locator("table tbody tr").first());
       await page.waitForURL(/\/tools\/chargebacks\/dsp_/, { timeout: NAV_TIMEOUT });
     });
     await step("pick up", async () => {
@@ -347,7 +354,7 @@ async function flows(browser: Browser) {
 
   // 6. Mobile: a support agent checks a refund on a phone.
   {
-    const context = await browser.newContext({ viewport: { width: MOBILE.width, height: MOBILE.height }, isMobile: true, hasTouch: true });
+    const context = await newContext(browser, { viewport: { width: MOBILE.width, height: MOBILE.height }, isMobile: true, hasTouch: true });
     const outDir = dir("flows");
     try {
       await signIn(context, "maria");
