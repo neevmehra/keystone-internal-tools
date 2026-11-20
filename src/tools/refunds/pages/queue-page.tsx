@@ -53,6 +53,7 @@ export async function QueuePage({ searchParams }: { searchParams: Promise<Search
         ]}
       />
       <DataTable
+        label="Refunds"
         columns={[
           { id: "id", header: "Refund" },
           { id: "customer", header: "Customer" },

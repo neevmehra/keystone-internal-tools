@@ -164,10 +164,40 @@ describe("activity timeline", () => {
     expect(forSupport.total).toBe(4);
   });
 
+  it("shows what happened to a record after it was created, in plain words", async () => {
+    const c = await makeCustomer();
+    const t = await makeTxn(c.id, new Date("2026-04-01T00:00:00Z"));
+    const refund = await makeRefund(c.id, t.id, new Date("2026-04-02T00:00:00Z"));
+    const audit = (action: string, before: unknown, after: unknown, at: string) =>
+      db.auditEvent.create({
+        data: {
+          actorId: "usr_test",
+          actorName: "Dan Weber",
+          actorRoles: "[]",
+          tool: "refunds",
+          action,
+          entityType: "Refund",
+          entityId: refund.id,
+          before: before === null ? null : JSON.stringify(before),
+          after: JSON.stringify(after),
+          createdAt: new Date(at),
+        },
+      });
+    await audit("refund.request", null, { status: "pending_approval" }, "2026-04-02T00:00:00Z");
+    await audit("refund.retry", { status: "failed" }, { status: "executed" }, "2026-04-03T00:00:00Z");
+
+    const { items } = await getCustomerTimeline(support, c.id, 1, 10);
+    const fromAudit = items.filter((i) => i.id.startsWith("audit:"));
+    // The creation event duplicates the refund's own row, so it's left out.
+    expect(fromAudit).toHaveLength(1);
+    expect(fromAudit[0]).toMatchObject({ kind: "Refund retried", title: `Refund ${refund.id} · by Dan Weber`, href: `/tools/refunds/${refund.id}` });
+    expect(items.some((i) => i.kind.includes("Activity") || i.title.includes("refund.request"))).toBe(false);
+  });
+
   it("includes customer views only for users who can read the audit log", async () => {
     const c = await makeCustomer();
     await recordCustomerView(support, c.id);
-    expect((await getCustomerTimeline(auditor, c.id)).items.some((i) => i.title.includes("Customer view"))).toBe(true);
+    expect((await getCustomerTimeline(auditor, c.id)).items.some((i) => i.kind === "Customer viewed")).toBe(true);
     expect((await getCustomerTimeline(support, c.id)).items).toEqual([]);
   });
 });

@@ -13,12 +13,19 @@ import {
 import { hasPermission } from "@/platform/rbac";
 import { getTool } from "@/platform/registry";
 import { EmptyState } from "@/platform/ui/EmptyState";
-import { formatAbsolute, formatCurrency, humanize } from "@/platform/ui/format";
+import { formatCurrency } from "@/platform/ui/format";
+import { toolLabel } from "@/platform/ui/labels";
 import { RecordDetail } from "@/platform/ui/RecordDetail";
 import { RelativeTime } from "@/platform/ui/RelativeTime";
 import { StatCards } from "@/platform/ui/StatCards";
 import { StatusBadge } from "@/platform/ui/StatusBadge";
 import { ToolIcon } from "@/platform/ui/ToolIcon";
+import { cn } from "@/lib/utils";
+
+const formatDate = (d: Date) => new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "UTC" }).format(d);
+
+/** Where an activity row came from, in words: "Card", "Refunds", "Platform". */
+const sourceLabel = (item: { id: string; tool: string }) => (item.id.startsWith("platform:") ? "Card" : toolLabel(item.tool));
 
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
@@ -59,7 +66,7 @@ export default async function CustomerPage({ params, searchParams }: PageProps<"
           { label: "Phone", value: customer.phone },
           { label: "Country", value: customer.country },
           { label: "Risk tier", value: <StatusBadge status={customer.riskTier} /> },
-          { label: "Customer since", value: formatAbsolute(customer.createdAt) },
+          { label: "Customer since", value: formatDate(customer.createdAt) },
           {
             label: "Personal data",
             value: canSeePii ? "Visible to you" : <span className="text-muted-foreground">Masked: your role doesn&apos;t include PII access</span>,
@@ -70,16 +77,19 @@ export default async function CustomerPage({ params, searchParams }: PageProps<"
       <StatCards items={stats} />
 
       {panels.length > 0 && (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className={cn("grid gap-4", panels.length > 1 && "lg:grid-cols-2")}>
           {panels.map((p, i) => {
             const tool = getTool(p.tool);
             return (
-              <section key={p.tool} className="rounded-lg border bg-card">
+              <section key={p.tool} className="min-w-0 rounded-lg border bg-card">
                 <header className="flex items-center gap-2 border-b px-4 py-3">
                   {tool && <ToolIcon name={tool.icon} />}
                   <h2 className="text-sm font-semibold">{p.title}</h2>
                   {tool && (
-                    <Link href={tool.nav[0]?.href ?? `/tools/${tool.slug}`} className="ml-auto text-xs text-muted-foreground hover:text-foreground">
+                    <Link
+                      href={tool.nav[0]?.href ?? `/tools/${tool.slug}`}
+                      className="-my-1 ml-auto inline-flex min-h-8 items-center rounded-md px-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+                    >
                       Open {tool.name}
                     </Link>
                   )}
@@ -92,12 +102,12 @@ export default async function CustomerPage({ params, searchParams }: PageProps<"
       )}
 
       <section className="rounded-lg border bg-card">
-        <header className="flex items-center justify-between border-b px-4 py-3">
-          <div>
+        <header className="flex items-start justify-between gap-3 border-b px-4 py-3">
+          <div className="min-w-0">
             <h2 className="text-sm font-semibold">Activity</h2>
             <p className="text-xs text-muted-foreground">Card transactions, tool records and their history, newest first.</p>
           </div>
-          <span className="text-xs text-muted-foreground tabular-nums">{timeline.total} events</span>
+          <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{timeline.total} events</span>
         </header>
         {timeline.items.length === 0 ? (
           <div className="p-4">
@@ -106,25 +116,34 @@ export default async function CustomerPage({ params, searchParams }: PageProps<"
         ) : (
           <ol className="divide-y">
             {timeline.items.map((item) => {
+              const source = sourceLabel(item);
               const body = (
                 <div className="flex items-start gap-3 px-4 py-2.5 text-sm">
-                  <span className="mt-0.5 w-28 shrink-0 font-mono text-[11px] text-muted-foreground">{item.tool === "platform" ? "card" : item.tool}</span>
+                  <span className="mt-0.5 hidden w-24 shrink-0 truncate text-xs text-muted-foreground sm:block">{source}</span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate">
+                    <p className="break-words">
                       <span className="font-medium">{item.kind}</span>
-                      <span className="text-muted-foreground"> · {item.title}</span>
+                      {item.title && <span className="text-muted-foreground"> · {item.title}</span>}
                     </p>
-                    {item.detail && <p className="truncate text-xs text-muted-foreground">{item.detail}</p>}
+                    <p className="truncate text-xs text-muted-foreground" title={item.detail}>
+                      <span className="sm:hidden">{source}</span>
+                      {item.detail && <span className="before:content-['_·_'] sm:before:content-none">{item.detail}</span>}
+                    </p>
                   </div>
-                  {item.amountCents !== undefined && <span className="tabular-nums">{formatCurrency(item.amountCents)}</span>}
-                  {item.status && <StatusBadge status={humanize(item.status)} />}
-                  <RelativeTime date={item.at} className="w-24 shrink-0 text-right text-xs text-muted-foreground" />
+                  <div className="flex shrink-0 flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
+                    {item.amountCents !== undefined && <span className="tabular-nums">{formatCurrency(item.amountCents)}</span>}
+                    {item.status && <StatusBadge status={item.status} />}
+                    <RelativeTime date={item.at} className="whitespace-nowrap text-xs text-muted-foreground sm:w-24 sm:text-right" />
+                  </div>
                 </div>
               );
               return (
                 <li key={item.id}>
                   {item.href ? (
-                    <Link href={item.href} className="block hover:bg-muted/40">
+                    <Link
+                      href={item.href}
+                      className="block hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none focus-visible:ring-inset"
+                    >
                       {body}
                     </Link>
                   ) : (

@@ -3,7 +3,7 @@
  */
 import { db } from "@/platform/db";
 import { hasPermission, type PermissionHolder } from "@/platform/rbac";
-import { getTool } from "@/platform/registry";
+import { toolLabel } from "@/platform/ui/labels";
 import { actionsPerDay, decisionTimesByTool, pendingByAge, percentile, separationOfDuties, topPeople } from "./compute";
 
 export * from "./compute";
@@ -33,7 +33,7 @@ export async function getInsights(range: { from: Date; to: Date }, now = new Dat
     }),
   ]);
 
-  const toolName = (slug: string) => getTool(slug)?.name ?? slug;
+  const toolName = toolLabel;
   const daily = actionsPerDay(events, range.from, range.to);
 
   return {
