@@ -216,7 +216,7 @@ export function CommandSearch() {
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-3 border-t bg-muted/40 px-4 py-2 text-[11px] text-muted-foreground">
+        <div className="hidden items-center gap-3 border-t bg-muted/40 px-4 py-2 text-[11px] text-muted-foreground sm:flex">
           <span>
             <kbd className="font-sans font-medium">↑↓</kbd> to move
           </span>
