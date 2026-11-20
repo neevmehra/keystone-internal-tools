@@ -231,3 +231,42 @@ model Dispute {
   @@index([transactionId])
   @@index([resolvedAt])
 }
+
+// "Build with Devin" request center. A plain-language request for a new tool
+// or a change, approved by an admin, then built by a Devin session.
+model ToolRequest {
+  id                String    @id @default(cuid())
+  kind              String // new_tool | change_tool
+  toolSlug          String? // target tool for change_tool (or the new tool's slug once known)
+  title             String
+  problem           String
+  audienceGroups    String // JSON string[] of IdP groups
+  workflow          String // what people need to do
+  signOff           String?
+  signOffAboveCents Int?
+  involvesPii       Boolean   @default(false)
+  movesMoney        Boolean   @default(false)
+  peopleCount       Int?
+  hoursPerWeek      Float? // team hours per week spent on this today
+  prompt            String // exactly what Devin receives
+  status            String    @default("submitted") // submitted | ready_simulation | building | pr_open | merged | launch_failed
+  mode              String? // live | simulation, set at launch
+  requestedById     String
+  requestedByName   String
+  approvalRequestId String?   @unique
+  devinSessionId    String?
+  devinSessionUrl   String?
+  devinStatus       String?
+  simulatedPayload  String? // JSON request body shown in simulation mode
+  prUrl             String?
+  prState           String? // open | merged | closed
+  acusUsed          Float?
+  launchedAt        DateTime?
+  lastSyncedAt      DateTime?
+  shippedAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([requestedById, createdAt])
+  @@index([status, createdAt])
+}
