@@ -87,7 +87,7 @@ prisma/            schema.prisma, seed.ts
 - `AUTH_MODE=mock | oidc`, default `mock`.
 - Both modes produce the same identity: subject ID, name, email, IdP groups.
 - **mock:** a polished "Demo sign-in" page listing the demo identities as cards with their group. Creates a signed, httpOnly session. Refuses to run when `NODE_ENV=production`.
-- **oidc:** Auth.js generic OIDC provider configured by `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `OIDC_GROUPS_CLAIM`. Wired, not tested. The README explains pointing it at Okta, Entra ID or Google Workspace.
+- **oidc:** Auth.js generic OIDC provider configured by `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`, `OIDC_GROUPS_CLAIM` (and optional `OIDC_SCOPES`). Tested end to end against a local Keycloak (`docker-compose.yml`, `keycloak/realm-export.json`) by the CI `sso` job. The README explains pointing it at Okta, Entra ID or Google Workspace.
 - `group-role-map.ts` maps IdP groups to roles. Unknown groups grant nothing. No mapped role means an "Access not provisioned" page that names the user's groups.
 - Just-in-time provisioning: users are upserted into `User` on sign-in, and roles are recomputed from groups every time, so removing someone from an IdP group removes their access.
 

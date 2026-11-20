@@ -105,13 +105,35 @@ Money amounts are integer cents. Money actions over the tool's `approvalThreshol
 
 In Devin, use the `new-internal-tool` skill.
 
-## Switch to Okta or Entra ID
+## Real SSO (Keycloak)
 
-Set `AUTH_MODE=oidc` and the OIDC variables (see `.env.example`). The redirect URI to register with the IdP is `https://<host>/api/auth/callback/oidc`. OIDC mode is wired but has not been tested against a live IdP.
+The demo sign-in stands in for an identity provider. To sign in through a real one locally, run Keycloak:
+
+```bash
+docker compose up -d keycloak    # imports keycloak/realm-export.json
+```
+
+Then set these in `.env` and restart `npm run dev`:
+
+```bash
+AUTH_MODE=oidc
+OIDC_ISSUER=http://localhost:8080/realms/keystone
+OIDC_CLIENT_ID=keystone
+OIDC_CLIENT_SECRET=keystone-dev-secret
+OIDC_GROUPS_CLAIM=groups
+```
+
+"Continue with company SSO" now sends you to Keycloak's login page. The realm has the same people and groups as the demo sign-in (`maria`, `dan`, `alex` and so on). **Password = username. Demo only.** Keycloak's admin console is at http://localhost:8080/admin (admin / admin).
+
+What happens on sign-in is the production path: Keycloak issues an ID token with a `groups` claim (group membership mapper, names not paths), Auth.js validates it, `provisionUser()` upserts the user and recomputes roles from groups, and the portal shows only what those roles allow. Remove someone from a group in Keycloak and their access is gone at their next sign-in. A test keeps the realm file in sync with the demo identities, and the CI `sso` job signs in through Keycloak as maria, dan and contractor on every PR.
+
+## Switch to Okta, Entra ID or Google Workspace
+
+It's the same three variables (`OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`), plus `OIDC_GROUPS_CLAIM` if the claim isn't called `groups` and `OIDC_SCOPES` if the IdP needs an extra scope. Register `https://<host>/api/auth/callback/oidc` as the redirect URI. No code changes, apart from mapping your group names in `group-role-map.ts`.
 
 | IdP | `OIDC_ISSUER` | Groups |
 | --- | --- | --- |
-| Okta | `https://<org>.okta.com/oauth2/default` | Add a `groups` claim to the authorization server (filter e.g. `Matches regex .*`) and grant the `groups` scope. `OIDC_GROUPS_CLAIM=groups`. |
+| Okta | `https://<org>.okta.com/oauth2/default` | Add a `groups` claim to the authorization server (filter e.g. `Matches regex .*`) and grant the `groups` scope: `OIDC_SCOPES="openid profile email groups"`, `OIDC_GROUPS_CLAIM=groups`. |
 | Entra ID | `https://login.microsoftonline.com/<tenant-id>/v2.0` | App registration → Token configuration → Add groups claim. Entra emits group object IDs, so map those IDs in `group-role-map.ts` (or emit `sAMAccountName` for synced groups). `OIDC_GROUPS_CLAIM=groups`. Users in 200+ groups get an overage claim instead; use app roles (`OIDC_GROUPS_CLAIM=roles`) in that case. |
 | Google Workspace | `https://accounts.google.com` | Google ID tokens don't include groups; use a custom claim via an IdP broker, or map from a directory lookup. |
 

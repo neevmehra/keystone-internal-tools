@@ -1,0 +1,250 @@
+{
+  "realm": "keystone",
+  "displayName": "Keystone demo IdP",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "rememberMe": false,
+  "loginWithEmailAllowed": true,
+  "groups": [
+    {
+      "name": "support"
+    },
+    {
+      "name": "ops"
+    },
+    {
+      "name": "finance-approvers"
+    },
+    {
+      "name": "compliance"
+    },
+    {
+      "name": "auditors"
+    },
+    {
+      "name": "platform-admins"
+    },
+    {
+      "name": "contractors"
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "keystone",
+      "name": "Keystone",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "keystone-dev-secret",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "consentRequired": false,
+      "rootUrl": "http://localhost:3000",
+      "baseUrl": "/",
+      "redirectUris": [
+        "http://localhost:3000/api/auth/callback/oidc"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3000/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "full.path": "false",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "introspection.token.claim": "true",
+            "claim.name": "groups"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "maria",
+      "email": "maria@example.com",
+      "emailVerified": true,
+      "firstName": "Maria",
+      "lastName": "Lopez",
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "maria",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/support"
+      ]
+    },
+    {
+      "username": "sam",
+      "email": "sam@example.com",
+      "emailVerified": true,
+      "firstName": "Sam",
+      "lastName": "Okafor",
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "sam",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/support"
+      ]
+    },
+    {
+      "username": "olivia",
+      "email": "olivia@example.com",
+      "emailVerified": true,
+      "firstName": "Olivia",
+      "lastName": "Chen",
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "olivia",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/ops"
+      ]
+    },
+    {
+      "username": "dan",
+      "email": "dan@example.com",
+      "emailVerified": true,
+      "firstName": "Dan",
+      "lastName": "Weber",
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "dan",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/finance-approvers"
+      ]
+    },
+    {
+      "username": "priya",
+      "email": "priya@example.com",
+      "emailVerified": true,
+      "firstName": "Priya",
+      "lastName": "Raman",
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "priya",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/finance-approvers"
+      ]
+    },
+    {
+      "username": "chris",
+      "email": "chris@example.com",
+      "emailVerified": true,
+      "firstName": "Chris",
+      "lastName": "Novak",
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "chris",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/compliance"
+      ]
+    },
+    {
+      "username": "alex",
+      "email": "alex@example.com",
+      "emailVerified": true,
+      "firstName": "Alex",
+      "lastName": "Kim",
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "alex",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/auditors"
+      ]
+    },
+    {
+      "username": "admin",
+      "email": "admin@example.com",
+      "emailVerified": true,
+      "firstName": "Avery",
+      "lastName": "Admin",
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/platform-admins"
+      ]
+    },
+    {
+      "username": "contractor",
+      "email": "contractor@example.com",
+      "emailVerified": true,
+      "firstName": "Casey",
+      "lastName": "Contractor",
+      "enabled": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "contractor",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/contractors"
+      ]
+    }
+  ]
+}
