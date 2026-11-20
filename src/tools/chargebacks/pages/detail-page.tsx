@@ -182,7 +182,7 @@ export async function DetailPage({ params }: { params: Promise<{ id: string }> }
           )}
         </section>
 
-        <ApprovalPanel request={approvals[0]} user={user} />
+        {approvals[0] && <ApprovalPanel request={approvals[0]} user={user} />}
       </div>
     </div>
   );

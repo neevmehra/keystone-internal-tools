@@ -123,11 +123,14 @@ export async function RequestPage({ searchParams }: { searchParams: Promise<Sear
           </div>
           <div className="lg:col-span-2">
             {selected.refundId ? (
-              <EmptyState
-                title="This transaction already has a refund"
-                description="Only one refund per transaction."
-                action={{ label: `Open ${selected.refundId}`, href: `/tools/refunds/${selected.refundId}` }}
-              />
+              <section className="rounded-lg border bg-card p-5">
+                <h3 className="text-sm font-semibold">This transaction has a refund</h3>
+                <p className="mt-1 text-sm text-muted-foreground">Each transaction can be refunded once. Open the refund to see its status and approval.</p>
+                <Link href={`/tools/refunds/${selected.refundId}`} className={`${buttonVariants({ size: "lg" })} mt-4`}>
+                  View refund
+                  <ArrowRight className="size-3.5" />
+                </Link>
+              </section>
             ) : !selected.refundable ? (
               <EmptyState title="Not refundable" description={`Only settled transactions can be refunded. This one is ${selected.status}.`} />
             ) : (
