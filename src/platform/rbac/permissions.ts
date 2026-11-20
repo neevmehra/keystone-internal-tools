@@ -1,0 +1,51 @@
+/**
+ * Role -> permission mapping. Access changes happen by PR: this file's Git
+ * history is the change-management record for auditors.
+ */
+export const ROLES = [
+  "support_agent",
+  "ops_analyst",
+  "finance_approver",
+  "compliance_officer",
+  "auditor",
+  "admin",
+] as const;
+export type Role = (typeof ROLES)[number];
+
+export const PLATFORM_PERMISSIONS = [
+  "pii:read",
+  "audit:read",
+  "audit:export",
+  "approvals:view",
+  "admin:read",
+  "requests:create",
+  "requests:approve",
+] as const;
+
+// Tool permissions: `<tool>:read`, `<tool>:write`, `<tool>:approve`.
+// `npm run new-tool` adds `<slug>:read` and `<slug>:write` here with no roles.
+export const TOOL_PERMISSIONS = [
+  // keystone:tool-permissions
+] as const;
+
+export const PERMISSIONS = [...PLATFORM_PERMISSIONS, ...TOOL_PERMISSIONS] as const;
+export type Permission = (typeof PERMISSIONS)[number];
+
+export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
+  support_agent: ["requests:create"],
+  ops_analyst: ["requests:create"],
+  finance_approver: ["approvals:view", "requests:create"],
+  compliance_officer: ["pii:read", "audit:read", "approvals:view"],
+  auditor: ["audit:read", "audit:export"],
+  admin: ["admin:read", "audit:read", "approvals:view", "requests:create", "requests:approve"],
+};
+
+export function isPermission(value: string): value is Permission {
+  return (PERMISSIONS as readonly string[]).includes(value);
+}
+
+export function permissionsForRoles(roles: readonly Role[]): Permission[] {
+  const set = new Set<Permission>();
+  for (const role of roles) for (const p of ROLE_PERMISSIONS[role] ?? []) set.add(p);
+  return [...set].sort();
+}
