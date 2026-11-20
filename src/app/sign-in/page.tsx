@@ -5,34 +5,38 @@ import { getAuthMode } from "@/platform/auth/config";
 import { getCurrentUser } from "@/platform/auth/current-user";
 import { DEMO_IDENTITIES, UNPROVISIONED_DEMO_IDENTITY, type DemoIdentity } from "@/platform/auth/demo-identities";
 import { rolesForGroups } from "@/platform/auth/group-role-map";
+import { groupLabel, roleLabel } from "@/platform/ui/labels";
 import { envLabel } from "@/platform/ui/AppShell";
 
 function IdentityCard({ identity }: { identity: DemoIdentity }) {
   const roles = rolesForGroups(identity.groups);
   const initials = identity.name.split(" ").map((p) => p[0]).join("");
+  const role = roles[0] ? roleLabel(roles[0]) : "No role";
   return (
-    <form action={demoSignInAction}>
+    <form action={demoSignInAction} className="h-full">
       <input type="hidden" name="username" value={identity.username} />
       <button
         type="submit"
         aria-label={`Sign in as ${identity.username}`}
-        className="group flex h-full w-full flex-col rounded-lg border bg-card p-3.5 text-left transition-all hover:border-primary/50 hover:shadow-sm focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+        className="group flex h-full w-full flex-col rounded-lg border bg-card p-4 text-left shadow-xs transition-all hover:border-primary/40 hover:shadow-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
       >
-        <div className="flex items-center gap-2.5">
-          <div className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">{initials}</div>
+        <div className="flex items-center gap-3">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">{initials}</div>
           <div className="min-w-0">
-            <p className="text-sm font-medium">{identity.username}</p>
-            <p className="truncate text-xs text-muted-foreground">{identity.name}</p>
+            <p className="truncate text-sm font-semibold">{identity.name}</p>
+            <p className="truncate text-xs text-muted-foreground">{identity.username}</p>
           </div>
         </div>
-        <p className="mt-2.5 flex-1 text-xs text-muted-foreground">{identity.purpose}</p>
-        <div className="mt-3 flex flex-wrap items-center gap-1">
-          {identity.groups.map((g) => (
-            <span key={g} className="rounded-md border bg-muted/50 px-1.5 py-0.5 font-mono text-[11px]">
-              {g}
-            </span>
-          ))}
-          <span className="ml-auto font-mono text-[11px] text-muted-foreground">{roles[0] ?? "no role"}</span>
+        <p className="mt-3 flex-1 text-sm leading-snug text-muted-foreground">{identity.purpose}</p>
+        <div className="mt-4 flex items-center justify-between gap-2 border-t pt-3">
+          <span className={roles[0] ? "truncate text-xs font-medium text-foreground" : "truncate text-xs font-medium text-amber-700"}>{role}</span>
+          <span className="flex min-w-0 gap-1">
+            {identity.groups.map((g) => (
+              <span key={g} title={`IdP group: ${g}`} className="truncate rounded-md border bg-muted/50 px-1.5 py-0.5 text-[11px] text-muted-foreground">
+                {groupLabel(g)}
+              </span>
+            ))}
+          </span>
         </div>
       </button>
     </form>
@@ -47,7 +51,7 @@ export default async function SignInPage() {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      <div className="mx-auto max-w-4xl px-6 py-14">
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
         <div className="mb-8 flex items-center gap-2">
           <div className="flex size-7 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground">K</div>
           <span className="font-semibold tracking-tight">Keystone</span>
@@ -70,12 +74,12 @@ export default async function SignInPage() {
               Pick an identity. Each one carries IdP groups, which map to an app role and its permissions, just like company SSO.
               Fake people, fake data.
             </p>
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-6 grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {DEMO_IDENTITIES.map((d) => (
                 <IdentityCard key={d.username} identity={d} />
               ))}
             </div>
-            <div className="mt-8 max-w-xs">
+            <div className="mt-8 sm:max-w-[calc(50%-0.375rem)] lg:max-w-[calc(25%-0.5625rem)]">
               <p className="mb-2 text-xs font-medium text-muted-foreground">Edge case</p>
               <IdentityCard identity={UNPROVISIONED_DEMO_IDENTITY} />
             </div>
