@@ -190,7 +190,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
                   tabIndex={0}
                   role="region"
                   aria-label="Simulated API request"
-                  className="max-h-72 overflow-auto rounded-md bg-muted/50 p-2 font-mono text-[11px] leading-relaxed focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+                  className="max-h-72 overflow-auto rounded-md bg-muted/50 p-2 font-mono text-[11px] leading-relaxed break-all whitespace-pre-wrap focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
                 >
                   {payloadText}
                 </pre>

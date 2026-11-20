@@ -111,7 +111,7 @@ export default async function ImpactPage() {
         <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
           Devin has used <Explained formula={impact.formulas.acus}>{impact.totalAcus} ACUs</Explained>
           {impact.acuCost != null && <> ({usd(impact.acuCost)})</>} across {impact.total} requests. Running the shipped tools (
-          {impact.shippedTools.join(", ") || "none yet"}) on Power Apps Premium would need{" "}
+          {impact.shippedTools.map(toolLabel).join(", ") || "none yet"}) on Power Apps Premium would need{" "}
           <Explained formula={impact.formulas.seats}>{impact.seatUsers} seats</Explained>, about{" "}
           <Explained formula={impact.formulas.seatCost}>{usd(impact.seatCostAnnual)} a year</Explained>. Not counted here: engineer review time, hosting, and
           the ongoing maintenance Keystone now owns.
