@@ -48,3 +48,4 @@ next-env.d.ts
 # smoke test output
 /e2e/artifacts/
 /e2e-dev-server.log
+/e2e/review/out/
