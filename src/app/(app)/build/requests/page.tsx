@@ -10,6 +10,7 @@ import { RelativeTime } from "@/platform/ui/RelativeTime";
 import { parseTableParams, type SearchParams } from "@/platform/ui/table-params";
 import { tools } from "@/tools";
 import { kindLabel, RequestStatusBadge } from "../components";
+import { toolLabel } from "@/platform/ui/labels";
 
 export default async function RequestsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const user = await requirePagePermission("requests:create");
@@ -28,7 +29,7 @@ export default async function RequestsPage({ searchParams }: { searchParams: Pro
         </div>
       ),
       kind: <span className="text-xs">{kindLabel(r.kind)}</span>,
-      tool: <span className="font-mono text-xs">{r.toolSlug ?? "—"}</span>,
+      tool: r.toolSlug ? toolLabel(r.toolSlug) : <span className="text-muted-foreground">New tool</span>,
       requestedByName: r.requestedByName,
       status: <RequestStatusBadge status={r.display} />,
       createdAt: <RelativeTime date={r.createdAt} />,

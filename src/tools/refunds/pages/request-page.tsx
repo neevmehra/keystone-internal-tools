@@ -16,7 +16,14 @@ function TransactionList({ results }: { results: LookupTransaction[] }) {
   return (
     <div className="divide-y rounded-lg border bg-card">
       {results.map((t) => (
-        <div key={t.id} className="flex flex-wrap items-center gap-4 px-4 py-3 text-sm">
+        <div
+          key={t.id}
+          className={
+            t.refundId || t.refundable
+              ? "relative flex flex-wrap items-center gap-4 px-4 py-3 text-sm transition-colors first:rounded-t-lg last:rounded-b-lg hover:bg-muted/40 has-[a:focus-visible]:bg-muted/40"
+              : "flex flex-wrap items-center gap-4 px-4 py-3 text-sm opacity-70"
+          }
+        >
           <div className="min-w-40">
             <p className="font-mono text-xs">{t.id}</p>
             <p className="text-xs text-muted-foreground">
@@ -33,11 +40,17 @@ function TransactionList({ results }: { results: LookupTransaction[] }) {
           <StatusBadge status={t.status} />
           <div className="ml-auto">
             {t.refundId ? (
-              <Link href={`/tools/refunds/${t.refundId}`} className="text-xs text-muted-foreground underline-offset-2 hover:underline">
+              <Link
+                href={`/tools/refunds/${t.refundId}`}
+                className="text-xs text-muted-foreground underline-offset-2 after:absolute after:inset-0 hover:underline focus-visible:outline-none"
+              >
                 Already refunded: {t.refundId}
               </Link>
             ) : t.refundable ? (
-              <Link href={`/tools/refunds/new?transactionId=${t.id}`} className={buttonVariants({ size: "sm", variant: "outline" })}>
+              <Link
+                href={`/tools/refunds/new?transactionId=${t.id}`}
+                className={`${buttonVariants({ size: "sm", variant: "outline" })} after:absolute after:inset-0`}
+              >
                 Refund
                 <ArrowRight className="size-3.5" />
               </Link>
@@ -81,11 +94,12 @@ export async function RequestPage({ searchParams }: { searchParams: Promise<Sear
             name="q"
             defaultValue={q}
             placeholder={canSearchEmail ? "Transaction ID (txn_000123) or customer email" : "Transaction ID (txn_000123)"}
-            className="pl-8"
+            className="h-9 pl-8"
             aria-label="Find a transaction"
+            autoFocus={!selected}
           />
         </div>
-        <button type="submit" className={buttonVariants({ size: "default" })}>
+        <button type="submit" className={buttonVariants({ size: "lg" })}>
           Find
         </button>
       </form>

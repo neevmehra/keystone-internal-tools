@@ -8,6 +8,7 @@ import { PageHeader } from "@/platform/ui/PageHeader";
 import { RelativeTime } from "@/platform/ui/RelativeTime";
 import { StatCards } from "@/platform/ui/StatCards";
 import { Explained, kindLabel, RequestStatusBadge } from "../components";
+import { toolLabel } from "@/platform/ui/labels";
 
 const usd = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: n >= 1000 ? 0 : 2 }).format(n);
 
@@ -90,7 +91,7 @@ export default async function ImpactPage() {
                       </Link>
                       <p className="text-xs text-muted-foreground">
                         {kindLabel(r.kind)}
-                        {r.toolSlug && <> · {r.toolSlug}</>}
+                        {r.toolSlug && <> · {toolLabel(r.toolSlug)}</>}
                       </p>
                     </td>
                     <td className="px-4 py-2">{r.requestedByName}</td>

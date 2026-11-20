@@ -14,6 +14,7 @@ import { Money } from "@/platform/ui/Money";
 import { RecordDetail } from "@/platform/ui/RecordDetail";
 import { RelativeTime } from "@/platform/ui/RelativeTime";
 import { StatusBadge } from "@/platform/ui/StatusBadge";
+import { groupLabel, toolLabel } from "@/platform/ui/labels";
 import { kindLabel, RequestStatusBadge, RequestTimeline } from "../../components";
 import { CopyButton } from "../../copy-button";
 import { RefreshStatusButton } from "./session-panel";
@@ -61,7 +62,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
             status={<RequestStatusBadge status={req.display} />}
             fields={[
               { label: "Type", value: kindLabel(req.kind) },
-              { label: "Tool", value: req.toolSlug ? <span className="font-mono text-xs">{req.toolSlug}</span> : null },
+              { label: "Tool", value: req.toolSlug ? toolLabel(req.toolSlug) : null },
               { label: "Requested by", value: <span>{req.requestedByName} · <RelativeTime date={req.createdAt} /></span> },
               { label: req.kind === "change_tool" ? "What should change" : "Problem", value: <span className="whitespace-pre-wrap">{req.problem}</span>, wide: true },
               { label: "What people need to do", value: <span className="whitespace-pre-wrap">{req.workflow}</span>, wide: true },
@@ -70,8 +71,8 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
                 value: req.audienceGroups.length ? (
                   <span className="flex flex-wrap gap-1">
                     {req.audienceGroups.map((g) => (
-                      <span key={g} className="rounded-md border bg-muted/50 px-1.5 py-0.5 font-mono text-[11px]">
-                        {g}
+                      <span key={g} title={g} className="rounded-full border bg-muted/50 px-2 py-0.5 text-xs">
+                        {groupLabel(g)}
                       </span>
                     ))}
                   </span>
@@ -119,7 +120,14 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
               <h3 className="text-sm font-semibold">What Devin receives</h3>
               <CopyButton text={req.prompt} />
             </div>
-            <pre className="max-h-96 overflow-auto px-4 py-3 font-mono text-[11px] leading-relaxed whitespace-pre-wrap text-muted-foreground">{req.prompt}</pre>
+            <pre
+              tabIndex={0}
+              role="region"
+              aria-label="Prompt Devin receives"
+              className="max-h-96 overflow-auto px-4 py-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-foreground/80 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+            >
+              {req.prompt}
+            </pre>
           </section>
 
           <section className="rounded-lg border bg-card p-5">
@@ -138,8 +146,8 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
               </h3>
               {launched && <StatusBadge status={req.mode === "live" ? "live" : "simulation"} tone={req.mode === "live" ? "success" : "info"} />}
             </div>
-            <dl className="space-y-2 px-4 py-3 text-sm">
-              {!launched && <p className="text-muted-foreground">Starts when an admin approves the request.</p>}
+            {!launched && <p className="px-4 pt-3 text-sm text-muted-foreground">Starts when an admin approves the request.</p>}
+            <dl className="space-y-2 px-4 py-3 text-sm empty:hidden">
               {req.devinSessionUrl && (
                 <Row label="Session">
                   <a href={req.devinSessionUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
@@ -178,7 +186,14 @@ export default async function RequestDetailPage({ params }: { params: Promise<{ 
                   <p className="text-xs font-medium">API request (simulation, not sent)</p>
                   <CopyButton text={payloadText} />
                 </div>
-                <pre className="max-h-72 overflow-auto rounded-md bg-muted/50 p-2 font-mono text-[10.5px] leading-relaxed">{payloadText}</pre>
+                <pre
+                  tabIndex={0}
+                  role="region"
+                  aria-label="Simulated API request"
+                  className="max-h-72 overflow-auto rounded-md bg-muted/50 p-2 font-mono text-[11px] leading-relaxed focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+                >
+                  {payloadText}
+                </pre>
                 <p className="text-xs text-muted-foreground">Set DEVIN_API_KEY and DEVIN_ORG_ID on the server to launch real sessions. Or paste the prompt into Devin and link the PR below.</p>
               </div>
             )}

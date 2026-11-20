@@ -20,9 +20,6 @@ export const PLATFORM_PERMISSIONS = [
   "admin:read",
   "requests:create",
   "requests:approve",
-  // Demo seed data only (prisma/seed.ts, tool "demo"). Remove with that seed
-  // section once real tools seed their own approvals.
-  "demo:approve",
   "access_reviews:manage",
 ] as const;
 
@@ -46,7 +43,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   // approvers decide on amounts and reasons and don't need it.
   support_agent: ["requests:create", "pii:read", "refunds:read", "refunds:request"],
   ops_analyst: ["requests:create", "pii:read", "chargebacks:read", "chargebacks:write"],
-  finance_approver: ["approvals:view", "demo:approve", "requests:create", "refunds:read", "refunds:approve", "chargebacks:read", "chargebacks:approve"],
+  finance_approver: ["approvals:view", "requests:create", "refunds:read", "refunds:approve", "chargebacks:read", "chargebacks:approve"],
   compliance_officer: ["pii:read", "audit:read", "approvals:view", "admin:read", "access_reviews:manage", "requests:create", "refunds:read", "chargebacks:read"],
   auditor: ["audit:read", "audit:export", "admin:read", "requests:create", "refunds:read", "chargebacks:read"],
   // Least privilege: admins manage access, they don't need customer PII.
