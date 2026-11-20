@@ -153,9 +153,17 @@ export const manifest = {
 
 `src/tools/index.ts` imports every manifest. The sidebar, portal home and admin catalog all read from it.
 
+### Customer view and global search
+
+`/customers/[id]` pulls one customer's whole history together across tools: the profile (PII masked per user), StatCards (lifetime card volume plus each tool's headline numbers), one panel per tool, and one activity timeline merging card transactions, tool records and the audit history of those records, newest first and paged on the server. Global search (Cmd+K in the top bar, or `/search`) finds customers, transactions, refunds and disputes by ID; email and name search needs `pii:read`. `?open=customer` on `/search` jumps to the customer behind the top match.
+
+Tools plug in through **customer panels**: an optional `customerPanels` export from `src/tools/<slug>/customer-panels.tsx`, listed in `src/tools/customer-panels.ts` (the scaffold does both). The `CustomerPanel` contract lives in `src/platform/manifest.ts`: `stats`, `activity`, `auditEntities`, `search` and `render`, all optional except `render`. Panels sit outside the manifest object because they read the database, and manifests are plain data imported everywhere.
+
+Rules the platform enforces: a tool's panel and search run only for users with the tool's `readPermission`; the page requires at least one tool; every customer record is masked with `maskRecord`; opening a customer page writes a `customer.view` audit event, and those views show in the timeline only for users with `audit:read`.
+
 ### Scaffold: `npm run new-tool <slug> "<Display Name>"`
 
-Deterministic, no AI. It copies `templates/tool/` to `src/tools/<slug>/`, fills in the names, registers the manifest, and adds `<slug>:read` and `<slug>:write` to `permissions.ts` with no roles yet. It produces: `manifest.ts`, `actions.ts` with one example `defineAction`, a queue page using `DataTable`, a detail page using `RecordDetail`, `AuditTimeline` and `ApprovalPanel`, and `__tests__/governance.test.ts` with the standard tests. It fails if the slug exists. Devin writes everything after that, following the `!new-internal-tool` playbook.
+Deterministic, no AI. It copies `templates/tool/` to `src/tools/<slug>/`, fills in the names, registers the manifest, and adds `<slug>:read` and `<slug>:write` to `permissions.ts` with no roles yet. It produces: `manifest.ts`, `actions.ts` with one example `defineAction`, a queue page using `DataTable`, a detail page using `RecordDetail`, `AuditTimeline` and `ApprovalPanel`, `__tests__/governance.test.ts` with the standard tests, and an empty `customer-panels.tsx` registered in `src/tools/customer-panels.ts`. It fails if the slug exists. Devin writes everything after that, following the `!new-internal-tool` playbook.
 
 ### Governance check (CI)
 

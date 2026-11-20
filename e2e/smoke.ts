@@ -46,9 +46,18 @@ async function visit(page: Page, route: SmokeRoute): Promise<string[]> {
   const status = response?.status() ?? 0;
   if (status >= 500) problems.push(`HTTP ${status}`);
 
+  // Redirects can finish client-side after "load" (streamed through a loading
+  // boundary while the dev server compiles), so give the URL time to settle.
+  const expectedPath = route.expectPath ?? route.path.split("?")[0];
+  const matches = (u: URL) => (route.expectPathPrefix ? u.pathname.startsWith(route.expectPathPrefix) : u.pathname === expectedPath);
+  if (!matches(new URL(page.url()))) await page.waitForURL(matches, { timeout: 30_000 }).catch(() => {});
+
   const landed = new URL(page.url()).pathname;
-  const expected = route.expectPath ?? route.path.split("?")[0];
-  if (landed !== expected) problems.push(`landed on ${landed}, expected ${expected}`);
+  if (route.expectPathPrefix) {
+    if (!landed.startsWith(route.expectPathPrefix)) problems.push(`landed on ${landed}, expected ${route.expectPathPrefix}…`);
+  } else {
+    if (landed !== expectedPath) problems.push(`landed on ${landed}, expected ${expectedPath}`);
+  }
 
   const body = await page.locator("body").innerText().catch(() => "");
   if (/Unhandled Runtime Error|Application error|Internal Server Error/i.test(body)) {

@@ -6,6 +6,7 @@ import type { CurrentUser } from "@/platform/auth/types";
 import { notificationsForUser } from "@/platform/notifications";
 import { hasPermission } from "@/platform/rbac";
 import { toolsForUser } from "@/platform/registry";
+import { CommandSearch } from "./CommandSearch";
 import { PLATFORM_ROUTES } from "./nav-config";
 import { NotificationBell } from "./NotificationBell";
 import { SidebarNav, type NavItem } from "./SidebarNav";
@@ -64,6 +65,12 @@ export async function AppShell({ user, children }: { user: CurrentUser; children
             <span className="text-sm font-semibold">Keystone</span>
             <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">{envLabel()}</span>
           </div>
+          {/* Global customer search: anyone who can open a tool can look customers up. */}
+          {nav.tools.length > 0 && (
+            <div className="hidden md:block">
+              <CommandSearch />
+            </div>
+          )}
           <div className="ml-auto flex items-center gap-3">
             <div className="hidden items-center gap-1 sm:flex">
               {user.groups.map((g) => (

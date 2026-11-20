@@ -1,7 +1,8 @@
 /**
  * Deterministic tool scaffold (no AI):  npm run new-tool <slug> "<Display Name>"
  * Copies templates/tool/ to src/tools/<slug>/, fills in names, registers the
- * manifest in src/tools/index.ts, adds `<slug>:read` and `<slug>:write` to
+ * manifest in src/tools/index.ts and its (optional) customer panels in
+ * src/tools/customer-panels.ts, adds `<slug>:read` and `<slug>:write` to
  * permissions.ts with no roles, and creates route stubs under
  * src/app/(app)/tools/<slug>/. Fails if the slug exists.
  */
@@ -12,6 +13,7 @@ const ROOT = path.resolve(__dirname, "..");
 const TEMPLATE = path.join(ROOT, "templates/tool");
 const PERMISSIONS = path.join(ROOT, "src/platform/rbac/permissions.ts");
 const REGISTRY = path.join(ROOT, "src/tools/index.ts");
+const CUSTOMER_PANELS = path.join(ROOT, "src/tools/customer-panels.ts");
 
 export function toIdentifiers(slug: string) {
   const pascal = slug
@@ -77,6 +79,10 @@ export function newTool(slug: string, name: string) {
   insertBefore(REGISTRY, "// keystone:tool-imports", [`import { manifest as ${camel}Manifest } from "./${slug}/manifest";`]);
   insertBefore(REGISTRY, "// keystone:tool-entries", [`${camel}Manifest,`]);
   insertBefore(PERMISSIONS, "// keystone:tool-permissions", [`"${slug}:read",`, `"${slug}:write",`]);
+  insertBefore(CUSTOMER_PANELS, "// keystone:customer-panel-imports", [
+    `import { customerPanels as ${camel}CustomerPanels } from "./${slug}/customer-panels";`,
+  ]);
+  insertBefore(CUSTOMER_PANELS, "// keystone:customer-panel-entries", [`...${camel}CustomerPanels,`]);
   return created.sort();
 }
 
@@ -86,7 +92,7 @@ if (process.argv[1]?.endsWith("new-tool.ts")) {
     const created = newTool(slug ?? "", nameParts.join(" "));
     console.log(`Created tool "${slug}":`);
     for (const f of created) console.log(`  ${f}`);
-    console.log("  updated src/tools/index.ts and src/platform/rbac/permissions.ts");
+    console.log("  updated src/tools/index.ts, src/tools/customer-panels.ts and src/platform/rbac/permissions.ts");
     console.log(`\nNext: grant ${slug}:read / ${slug}:write to roles in permissions.ts, replace the example action, then run the checks.`);
   } catch (err) {
     console.error(`new-tool: ${err instanceof Error ? err.message : err}`);
