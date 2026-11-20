@@ -1,7 +1,8 @@
-import { Download, ScrollText } from "lucide-react";
+import { Download, ExternalLink, History, ScrollText } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { AUDIT_SORTABLE, getAuditFacets, listAuditEvents } from "@/platform/audit";
+import { historyHref, recordHref } from "@/platform/audit/links";
 import { maskAuditEvent } from "@/platform/audit/masking";
 import { requirePagePermission } from "@/platform/auth";
 import { hasPermission } from "@/platform/rbac";
@@ -10,13 +11,8 @@ import { EmptyState } from "@/platform/ui/EmptyState";
 import { PageHeader } from "@/platform/ui/PageHeader";
 import { RelativeTime } from "@/platform/ui/RelativeTime";
 import { parseTableParams, type SearchParams } from "@/platform/ui/table-params";
+import { AuditDiff } from "./AuditDiff";
 import { AUDIT_FILTER_KEYS, toAuditFilters } from "./filters";
-
-function summarize(value: Record<string, unknown> | null) {
-  if (!value) return "—";
-  const s = JSON.stringify(value);
-  return s.length > 80 ? `${s.slice(0, 80)}…` : s;
-}
 
 export default async function AuditPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const user = await requirePagePermission("audit:read");
@@ -45,9 +41,24 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
           <div className="leading-tight">
             <p className="text-xs">{e.entityType}</p>
             <p className="max-w-40 truncate font-mono text-[11px] text-muted-foreground">{e.entityId}</p>
+            <div className="mt-1 flex items-center gap-2 text-[11px]">
+              {(() => {
+                const href = recordHref(e);
+                return (
+                  href && (
+                    <Link href={href} className="inline-flex items-center gap-0.5 text-primary hover:underline">
+                      Open <ExternalLink className="size-3" />
+                    </Link>
+                  )
+                );
+              })()}
+              <Link href={historyHref(e)} className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-foreground">
+                <History className="size-3" /> History
+              </Link>
+            </div>
           </div>
         ),
-        change: <span className="block max-w-72 truncate font-mono text-[11px] text-muted-foreground">{summarize(e.after)}</span>,
+        change: <AuditDiff before={e.before} after={e.after} />,
       },
     }));
 
@@ -57,7 +68,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
     <div>
       <PageHeader
         title="Audit log"
-        description="Every change in every tool, append-only. Filter, sort and share the URL."
+        description="Every change in every tool, append-only, with field-level diffs. Filter, sort and share the URL. Exports are themselves audited."
         actions={
           hasPermission(user, "audit:export") && (
             <Link href={`/audit/export${exportQs ? `?${exportQs}` : ""}`} prefetch={false} className={buttonVariants({ variant: "outline", size: "sm" })}>
@@ -73,7 +84,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
           { id: "tool", header: "Tool", sortable: true },
           { id: "action", header: "Action", sortable: true },
           { id: "entityType", header: "Record", sortable: true },
-          { id: "change", header: "After" },
+          { id: "change", header: "Changes" },
         ]}
         rows={tableRows}
         total={total}
@@ -87,6 +98,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
           { id: "action", label: "Action", type: "text", placeholder: "Action, e.g. approval" },
           { id: "tool", label: "Tool", type: "select", options: facets.tools.map((t) => ({ label: t, value: t })) },
           { id: "entityType", label: "Record", type: "select", options: facets.entityTypes.map((t) => ({ label: t, value: t })) },
+          { id: "entityId", label: "Record ID", type: "text", placeholder: "Record ID" },
           { id: "from", label: "From", type: "date" },
           { id: "to", label: "To", type: "date" },
         ]}

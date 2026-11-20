@@ -51,6 +51,17 @@ export const SMOKE_ROUTES: SmokeRoute[] = [
   { as: "admin", path: "/insights", expectText: "self-approved", screenshot: "insights-admin" },
   { as: "maria", path: "/insights", expectPath: "/forbidden" },
 
+  // Admin and compliance
+  { as: "admin", path: "/admin", expectText: "Access reviews", screenshot: "admin-overview" },
+  { as: "admin", path: "/admin/tools", screenshot: "admin-tool-catalog" },
+  { as: "admin", path: "/admin/access", expectText: "Access matrix", screenshot: "admin-access-matrix" },
+  { as: "chris", path: "/admin/access-reviews", expectText: "Reviews", screenshot: "access-reviews" },
+  { as: "chris", path: "/admin/access-reviews/current", expectText: "Stale accounts", screenshot: "access-review-in-progress" },
+  { as: "alex", path: "/admin/evidence", expectText: "Download evidence pack", screenshot: "evidence-pack" },
+  { as: "alex", path: "/audit?tool=platform", expectText: "Changes", screenshot: "audit-diffs" },
+  { as: "maria", path: "/admin", expectPath: "/forbidden" },
+  { as: "alex", path: "/admin/access-reviews", expectPath: "/forbidden" },
+
   // Unprovisioned identity
   { as: "contractor", path: "/", expectPath: "/access-not-provisioned", screenshot: "access-not-provisioned" },
 ];
