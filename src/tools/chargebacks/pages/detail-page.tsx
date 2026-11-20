@@ -27,6 +27,7 @@ export async function DetailPage({ params }: { params: Promise<{ id: string }> }
   ]);
 
   const canWrite = hasPermission(user, "chargebacks:write");
+  const canSignOff = hasPermission(user, "chargebacks:approve") && approvals[0]?.status === "pending";
   const mine = dispute.assignedToId === user.id;
   const needsSignOff = dispute.amountCents >= (manifest.approvalThresholdCents ?? Infinity);
   // The engine needs approval at or above approvalThresholdCents (50_001), so the limit people read is one cent less.
@@ -75,7 +76,7 @@ export async function DetailPage({ params }: { params: Promise<{ id: string }> }
 
       <div className="space-y-5">
         <section className="rounded-lg border bg-card">
-          <div className="border-b px-4 py-3">
+          <div className={cn("px-4 py-3", canWrite && "border-b")}>
             <h3 className="text-sm font-semibold">{canWrite ? "Work this dispute" : "Your access"}</h3>
             {canWrite ? (
               <ol className="mt-3 space-y-2" aria-label="Steps">
@@ -99,7 +100,9 @@ export async function DetailPage({ params }: { params: Promise<{ id: string }> }
               <p className="mt-1 flex items-start gap-2 text-sm text-muted-foreground">
                 <Eye className="mt-0.5 size-4 shrink-0" aria-hidden />
                 <span>
-                  View only. Payments Ops works disputes; finance signs off on write-offs over {signOffLimit}.
+                  {canSignOff
+                    ? "Payments Ops works disputes. Your part is the write-off sign-off below."
+                    : `View only. Payments Ops works disputes; finance signs off on write-offs over ${signOffLimit}.`}
                 </span>
               </p>
             )}
