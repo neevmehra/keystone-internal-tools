@@ -38,7 +38,7 @@ export function RequestTimeline({ status, mode }: { status: DisplayStatus; mode:
                 "flex size-5 items-center justify-center rounded-full border [&_svg]:size-3",
                 s.state === "done" && "border-emerald-300 bg-emerald-50 text-emerald-700",
                 s.state === "current" && "border-primary bg-primary/10",
-                s.state === "failed" && "border-destructive/40 bg-destructive/10",
+                s.state === "failed" && "border-destructive/40 bg-destructive/10 text-red-700",
               )}
             >
               {s.state === "done" ? <Check /> : s.state === "failed" ? <X /> : <Circle className="fill-current opacity-60" />}
