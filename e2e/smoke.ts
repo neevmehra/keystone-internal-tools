@@ -47,8 +47,12 @@ async function visit(page: Page, route: SmokeRoute): Promise<string[]> {
   if (status >= 500) problems.push(`HTTP ${status}`);
 
   const landed = new URL(page.url()).pathname;
-  const expected = route.expectPath ?? route.path.split("?")[0];
-  if (landed !== expected) problems.push(`landed on ${landed}, expected ${expected}`);
+  if (route.expectPathPrefix) {
+    if (!landed.startsWith(route.expectPathPrefix)) problems.push(`landed on ${landed}, expected ${route.expectPathPrefix}…`);
+  } else {
+    const expected = route.expectPath ?? route.path.split("?")[0];
+    if (landed !== expected) problems.push(`landed on ${landed}, expected ${expected}`);
+  }
 
   const body = await page.locator("body").innerText().catch(() => "");
   if (/Unhandled Runtime Error|Application error|Internal Server Error/i.test(body)) {

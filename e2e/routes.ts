@@ -12,6 +12,8 @@ export type SmokeRoute = {
   path: string;
   /** Where the browser should end up. Defaults to `path` (query string ignored). */
   expectPath?: string;
+  /** Like expectPath, for redirects to a record whose ID the seed decides (e.g. "/customers/"). */
+  expectPathPrefix?: string;
   /** Text that must appear on the page. */
   expectText?: string;
   /** File name (without .png) for a full-page screenshot. */
@@ -81,6 +83,18 @@ export const SMOKE_ROUTES: SmokeRoute[] = [
   { as: "admin", path: "/build/requests/treq_seed_06", expectText: "Waiting for approval", screenshot: "build-request-pending-admin" },
   { as: "admin", path: "/build/impact", expectText: "Equivalent Power Apps seats", screenshot: "build-impact-admin" },
   { as: "maria", path: "/build/impact", expectPath: "/forbidden" },
+
+  // Customer view and global search. Seeded IDs are random per customer, so
+  // these open the customer behind a known record (?open=customer redirects).
+  { as: "maria", path: "/search?q=ref_demo_pending&open=customer", expectPathPrefix: "/customers/cus_", expectText: "Activity", screenshot: "customer-maria" },
+  { as: "alex", path: "/search?q=dsp_000001&open=customer", expectPathPrefix: "/customers/cus_", expectText: "•••", screenshot: "customer-alex-masked" },
+  { as: "olivia", path: "/search?q=dsp_000001&open=customer", expectPathPrefix: "/customers/cus_", expectText: "Chargebacks" },
+  { as: "chris", path: "/search?q=txn_00002", expectText: "Transaction", screenshot: "search-chris" },
+  // Maria can't read chargebacks, so a dispute ID finds nothing and doesn't redirect.
+  { as: "maria", path: "/search?q=dsp_000001&open=customer", expectPath: "/search", expectText: "No matches" },
+  // Auditors can't search by email (PII).
+  { as: "alex", path: "/search?q=maria%40example.com", expectText: "needs PII access" },
+  { as: "contractor", path: "/customers/cus_00001", expectPath: "/access-not-provisioned" },
 
   // Unprovisioned identity
   { as: "contractor", path: "/", expectPath: "/access-not-provisioned", screenshot: "access-not-provisioned" },
