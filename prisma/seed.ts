@@ -11,6 +11,7 @@ import { rolesForGroups } from "../src/platform/auth/group-role-map";
 import { seedRefunds } from "./seeds/refunds";
 import { seedGovernance } from "./seed-governance";
 import { seedChargebacks } from "./seeds/chargebacks";
+import { seedToolRequests } from "./seed-requests";
 
 export const CUSTOMER_COUNT = 1_000;
 export const TRANSACTION_COUNT = 5_000;
@@ -252,6 +253,8 @@ async function main() {
   await seedGovernance(prisma, anchorDate());
   const chargebacks = await seedChargebacks(prisma, anchor, { customers, transactions });
   console.log(`Seeded ${chargebacks.disputes} chargeback disputes.`);
+  const requests = await seedToolRequests(prisma);
+  if (requests) console.log(`Seeded ${requests} Build with Devin requests.`);
   await prisma.$disconnect();
 }
 

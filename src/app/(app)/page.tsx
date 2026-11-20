@@ -9,6 +9,7 @@ import { Money } from "@/platform/ui/Money";
 import { RelativeTime } from "@/platform/ui/RelativeTime";
 import { StatusBadge } from "@/platform/ui/StatusBadge";
 import { ToolIcon } from "@/platform/ui/ToolIcon";
+import { YourRequests } from "./build/components";
 
 export default async function PortalHome() {
   const user = await requireUser();
@@ -99,7 +100,7 @@ export default async function PortalHome() {
         </section>
         <section className="space-y-3">
           <h2 className="text-sm font-semibold">Your requests</h2>
-          <EmptyState icon={<Send />} title="No requests yet" description="Requests you make, like refunds or tool changes, and their status will show up here." />
+          <YourRequests user={user} emptyIcon={<Send />} />
         </section>
       </div>
     </div>

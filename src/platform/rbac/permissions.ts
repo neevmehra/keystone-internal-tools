@@ -47,8 +47,8 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   support_agent: ["requests:create", "pii:read", "refunds:read", "refunds:request"],
   ops_analyst: ["requests:create", "pii:read", "chargebacks:read", "chargebacks:write"],
   finance_approver: ["approvals:view", "demo:approve", "requests:create", "refunds:read", "refunds:approve", "chargebacks:read", "chargebacks:approve"],
-  compliance_officer: ["pii:read", "audit:read", "approvals:view", "admin:read", "access_reviews:manage", "refunds:read", "chargebacks:read"],
-  auditor: ["audit:read", "audit:export", "admin:read", "refunds:read", "chargebacks:read"],
+  compliance_officer: ["pii:read", "audit:read", "approvals:view", "admin:read", "access_reviews:manage", "requests:create", "refunds:read", "chargebacks:read"],
+  auditor: ["audit:read", "audit:export", "admin:read", "requests:create", "refunds:read", "chargebacks:read"],
   // Least privilege: admins manage access, they don't need customer PII.
   admin: ["admin:read", "audit:read", "audit:export", "access_reviews:manage", "approvals:view", "requests:create", "requests:approve", "refunds:read", "chargebacks:read"],
 };

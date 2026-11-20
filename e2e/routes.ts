@@ -72,6 +72,16 @@ export const SMOKE_ROUTES: SmokeRoute[] = [
   { as: "chris", path: "/tools/chargebacks/dsp_000001", expectText: "Evidence sent" },
   { as: "maria", path: "/tools/chargebacks", expectPath: "/forbidden" },
 
+  // Build with Devin (request center)
+  { as: "priya", path: "/build", expectText: "Preview what Devin will receive", screenshot: "build-request-priya" },
+  { as: "priya", path: "/build?tab=change", expectPath: "/build", screenshot: "build-change-request-priya" },
+  { as: "priya", path: "/build/requests", expectText: "My requests", screenshot: "build-requests-priya" },
+  { as: "priya", path: "/build/requests/treq_seed_04", expectText: "Ready to launch (simulation)", screenshot: "build-request-simulation-priya" },
+  { as: "admin", path: "/build/requests", expectText: "All requests", screenshot: "build-requests-admin" },
+  { as: "admin", path: "/build/requests/treq_seed_06", expectText: "Waiting for approval", screenshot: "build-request-pending-admin" },
+  { as: "admin", path: "/build/impact", expectText: "Equivalent Power Apps seats", screenshot: "build-impact-admin" },
+  { as: "maria", path: "/build/impact", expectPath: "/forbidden" },
+
   // Unprovisioned identity
   { as: "contractor", path: "/", expectPath: "/access-not-provisioned", screenshot: "access-not-provisioned" },
 ];

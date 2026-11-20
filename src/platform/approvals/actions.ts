@@ -3,6 +3,7 @@
 import { getCurrentUser } from "@/platform/auth/current-user";
 import { KeystoneError, UnauthenticatedError } from "@/platform/errors";
 import "@/tools/executors";
+import "@/platform/requests/executor";
 import { approve, execute, hasExecutor, reject } from "./index";
 
 export type ApprovalActionResult = { ok: boolean; message: string };
