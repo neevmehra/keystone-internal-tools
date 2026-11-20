@@ -1,14 +1,19 @@
 import { ArrowRight, Boxes, Inbox, Send } from "lucide-react";
 import Link from "next/link";
+import { topPendingForUser } from "@/platform/approvals/inbox";
 import { requireUser } from "@/platform/auth";
 import { toolsForUser } from "@/platform/registry";
 import { EmptyState } from "@/platform/ui/EmptyState";
+import { humanize } from "@/platform/ui/format";
+import { Money } from "@/platform/ui/Money";
+import { RelativeTime } from "@/platform/ui/RelativeTime";
 import { StatusBadge } from "@/platform/ui/StatusBadge";
 import { ToolIcon } from "@/platform/ui/ToolIcon";
 
 export default async function PortalHome() {
   const user = await requireUser();
   const tools = toolsForUser(user);
+  const waiting = await topPendingForUser(user, 5);
   const firstName = user.name.split(" ")[0];
   return (
     <div className="space-y-8">
@@ -57,8 +62,40 @@ export default async function PortalHome() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold">Waiting on you</h2>
-          <EmptyState icon={<Inbox />} title="Nothing waiting on you" description="Approvals and tasks assigned to you will show up here." />
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold">Waiting on you</h2>
+            {waiting.length > 0 && (
+              <Link href="/approvals" className="text-xs text-muted-foreground hover:text-foreground">
+                Open inbox
+              </Link>
+            )}
+          </div>
+          {waiting.length === 0 ? (
+            <EmptyState icon={<Inbox />} title="Nothing waiting on you" description="Approvals and tasks assigned to you will show up here." />
+          ) : (
+            <ul className="divide-y rounded-lg border bg-card">
+              {waiting.map((r) => (
+                <li key={r.id}>
+                  <Link href="/approvals" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/40">
+                    <div className="min-w-0 flex-1 leading-tight">
+                      <p className="truncate text-sm">
+                        {humanize(r.actionType.split(".").pop() ?? r.actionType)}
+                        <span className="text-muted-foreground"> · {r.toolName}</span>
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {r.requestedByName} · <RelativeTime date={r.createdAt} />
+                      </p>
+                    </div>
+                    {r.amountCents != null && (
+                      <span className="text-sm font-medium">
+                        <Money cents={r.amountCents} />
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
         <section className="space-y-3">
           <h2 className="text-sm font-semibold">Your requests</h2>

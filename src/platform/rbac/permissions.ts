@@ -20,6 +20,9 @@ export const PLATFORM_PERMISSIONS = [
   "admin:read",
   "requests:create",
   "requests:approve",
+  // Demo seed data only (prisma/seed.ts, tool "demo"). Remove with that seed
+  // section once real tools seed their own approvals.
+  "demo:approve",
 ] as const;
 
 // Tool permissions: `<tool>:read`, `<tool>:write`, `<tool>:approve`.
@@ -39,7 +42,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   // approvers decide on amounts and reasons and don't need it.
   support_agent: ["requests:create", "pii:read", "refunds:read", "refunds:request"],
   ops_analyst: ["requests:create"],
-  finance_approver: ["approvals:view", "requests:create", "refunds:read", "refunds:approve"],
+  finance_approver: ["approvals:view", "demo:approve", "requests:create", "refunds:read", "refunds:approve"],
   compliance_officer: ["pii:read", "audit:read", "approvals:view", "refunds:read"],
   auditor: ["audit:read", "audit:export", "refunds:read"],
   admin: ["admin:read", "audit:read", "approvals:view", "requests:create", "requests:approve", "refunds:read"],
