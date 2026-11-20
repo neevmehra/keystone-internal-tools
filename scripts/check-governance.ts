@@ -2,6 +2,9 @@
  * Governance check (runs in CI). Fails if:
  * - an export in src/tools/<slug>/actions.ts isn't created with defineAction(
  * - a file under src/tools/ writes through Prisma outside a tool's actions.ts
+ *   (or executors.ts, whose writes the approvals engine commits and audits)
+ * - a tool's route folder, src/app/(app)/tools/<slug>/, does anything but
+ *   re-export from the tool: no Prisma writes and no "use server"
  * - a tool is missing manifest.ts or __tests__/, or isn't in the registry
  * - a manifest's sensitivity is "pii" or "money" but piiFields is missing
  */
@@ -66,11 +69,33 @@ export function checkGovernance(root: string): string[] {
 
   for (const file of walk(toolsDir)) {
     const parts = path.relative(toolsDir, file).split(path.sep);
-    if (parts.length === 2 && parts[1] === "actions.ts") continue;
+    if (parts.length === 2 && (parts[1] === "actions.ts" || parts[1] === "executors.ts")) continue;
     const text = readFileSync(file, "utf8");
     const m = text.match(PRISMA_WRITE);
     if (m && m.index !== undefined) {
       errors.push(`${rel(file)}:${lineOf(text, m.index)}: database writes must go through defineAction in actions.ts`);
+    }
+  }
+
+  // Route folders only re-export pages from src/tools/<slug>/. Logic and
+  // writes in app/ would bypass the checks above.
+  const routesDir = path.join(root, "src/app/(app)/tools");
+  if (existsSync(routesDir)) {
+    for (const name of readdirSync(routesDir)) {
+      if (statSync(path.join(routesDir, name)).isDirectory() && !slugs.includes(name)) {
+        errors.push(`src/app/(app)/tools/${name}/: route folder has no matching tool in src/tools/${name}/`);
+      }
+    }
+    for (const file of walk(routesDir)) {
+      const text = readFileSync(file, "utf8");
+      const write = text.match(PRISMA_WRITE);
+      if (write && write.index !== undefined) {
+        errors.push(`${rel(file)}:${lineOf(text, write.index)}: route files only re-export from src/tools/<slug>/; database writes must go through defineAction`);
+      }
+      const useServer = text.match(/^\s*["']use server["']/m);
+      if (useServer && useServer.index !== undefined) {
+        errors.push(`${rel(file)}:${lineOf(text, useServer.index)}: no "use server" in route files; put actions in src/tools/<slug>/actions.ts`);
+      }
     }
   }
 

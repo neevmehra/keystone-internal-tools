@@ -3,4 +3,4 @@
  * with `registerExecutor()` in `src/tools/<slug>/executors.ts` and import
  * that file here.
  */
-export {};
+import "./refunds/executors";

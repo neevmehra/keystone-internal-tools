@@ -31,6 +31,18 @@ export const SMOKE_ROUTES: SmokeRoute[] = [
   { as: "alex", path: "/audit", expectText: "Audit", screenshot: "audit-alex" },
   { as: "maria", path: "/audit", expectPath: "/forbidden" },
 
+  // Refunds. ref_demo_pending is maria's seeded $250.00 refund awaiting approval;
+  // txn_000021 is a settled transaction the seed never refunds.
+  { as: "maria", path: "/tools/refunds", expectText: "Pending approval", screenshot: "refunds-queue-maria" },
+  { as: "maria", path: "/tools/refunds/new?q=txn_00002", expectText: "txn_000021", screenshot: "refunds-lookup-maria" },
+  { as: "maria", path: "/tools/refunds/new?transactionId=txn_000021", expectText: "Request refund", screenshot: "refunds-request-maria" },
+  { as: "maria", path: "/tools/refunds/ref_demo_pending", expectText: "You can't approve your own request", screenshot: "refund-detail-maria" },
+  { as: "dan", path: "/tools/refunds", screenshot: "refunds-queue-dan" },
+  { as: "dan", path: "/tools/refunds/ref_demo_pending", expectText: "Approve", screenshot: "refund-detail-dan" },
+  { as: "dan", path: "/tools/refunds/new", expectPath: "/forbidden" },
+  { as: "alex", path: "/tools/refunds/ref_demo_pending", expectText: "•••@", screenshot: "refund-detail-alex-masked" },
+  { as: "alex", path: "/tools/refunds?status=executed", expectText: "Executed" },
+
   // Unprovisioned identity
   { as: "contractor", path: "/", expectPath: "/access-not-provisioned", screenshot: "access-not-provisioned" },
 ];

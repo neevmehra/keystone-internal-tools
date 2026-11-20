@@ -32,3 +32,21 @@ export async function makeCustomer(overrides: Partial<{ riskTier: string; email:
     },
   });
 }
+
+/** Test-only fixture insert (fake data): a card transaction, with a new customer unless one is given. */
+export async function makeTransaction(overrides: Partial<{ amountCents: number; status: string; customerId: string }> = {}) {
+  const customerId = overrides.customerId ?? (await makeCustomer()).id;
+  return db.cardTransaction.create({
+    data: {
+      id: `txn_test_${randomUUID()}`,
+      customerId,
+      amountCents: overrides.amountCents ?? 25_000,
+      currency: "USD",
+      merchant: "Test Merchant",
+      category: "Shopping",
+      cardLast4: "4242",
+      status: overrides.status ?? "settled",
+      createdAt: new Date("2026-01-02T00:00:00Z"),
+    },
+  });
+}

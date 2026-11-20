@@ -60,6 +60,41 @@ describe("check-governance", () => {
     );
   });
 
+  it("allows writes in a tool's executors.ts", () => {
+    const executors = "registerExecutor('demo.x', { apply: async ({ tx }) => { await tx.thing.update({ where, data }); } });";
+    expect(checkGovernance(fixture({ ...base, "src/tools/demo/executors.ts": executors }))).toEqual([]);
+  });
+
+  it("accepts route folders that only re-export from the tool", () => {
+    const routes = {
+      "src/app/(app)/tools/demo/page.tsx": 'import { QueuePage } from "@/tools/demo/pages/queue-page";\n\nexport default QueuePage;\n',
+      "src/app/(app)/tools/demo/[id]/page.tsx": 'import { DetailPage } from "@/tools/demo/pages/detail-page";\n\nexport default DetailPage;\n',
+    };
+    expect(checkGovernance(fixture({ ...base, ...routes }))).toEqual([]);
+  });
+
+  it("flags Prisma writes and server actions in route folders", () => {
+    const errors = checkGovernance(
+      fixture({
+        ...base,
+        "src/app/(app)/tools/demo/page.tsx": "export default async function P() { await db.thing.create({ data }); }",
+        "src/app/(app)/tools/demo/actions.ts": '"use server";\nexport async function sneaky() {}',
+      }),
+    );
+    expect(errors).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/tools\/demo\/page\.tsx:1: route files only re-export/),
+        expect.stringMatching(/tools\/demo\/actions\.ts:1: no "use server" in route files/),
+      ]),
+    );
+    expect(errors).toHaveLength(2);
+  });
+
+  it("flags route folders without a matching tool", () => {
+    const errors = checkGovernance(fixture({ ...base, "src/app/(app)/tools/ghost/page.tsx": "export default function P() {}" }));
+    expect(errors).toEqual(["src/app/(app)/tools/ghost/: route folder has no matching tool in src/tools/ghost/"]);
+  });
+
   it("flags pii/money manifests without piiFields", () => {
     const errors = checkGovernance(fixture({ ...base, "src/tools/demo/manifest.ts": `export const manifest = { sensitivity: "money" };` }));
     expect(errors).toEqual(['demo: manifest sensitivity is "money" but piiFields is missing or empty']);
