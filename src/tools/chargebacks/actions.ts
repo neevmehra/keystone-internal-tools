@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { defineAction } from "@/platform/actions";
+import { defineAction, type ActionRunResult } from "@/platform/actions";
 import { registerExecutor, requestApproval, requiresApproval } from "@/platform/approvals";
 import { recordAudit } from "@/platform/audit";
 import type { CurrentUser } from "@/platform/auth/types";
@@ -102,6 +102,8 @@ export const markDisputeWon = defineAction({
   },
 });
 
+type MarkLostResult = { id: string; status: "lost" | "written_off"; approvalRequestId: string | null };
+
 /**
  * Losses at or under $500 are written off immediately. Larger losses stay
  * "lost" and create a write-off approval for finance (maker-checker).
@@ -111,7 +113,7 @@ export const markDisputeLost = defineAction({
   name: "chargebacks.dispute.mark_lost",
   permission: "chargebacks:write",
   input: z.object({ disputeId }),
-  run: async ({ input, user, tx }) => {
+  run: async ({ input, user, tx }): Promise<ActionRunResult<MarkLostResult>> => {
     const before = await loadOwned(tx, input.disputeId, user);
     if (!before.evidenceNote) throw new ConflictError("Add a note about the evidence you sent before resolving.");
     const now = new Date();
@@ -139,7 +141,7 @@ export const markDisputeLost = defineAction({
         before: { status: before.status },
         after: { status: "lost" },
         requestId: approval.id,
-        result: { id: before.id, status: "lost" as const, approvalRequestId: approval.id },
+        result: { id: before.id, status: "lost", approvalRequestId: approval.id },
       };
     }
 
@@ -149,7 +151,7 @@ export const markDisputeLost = defineAction({
       entityId: before.id,
       before: { status: before.status },
       after: { status: "written_off" },
-      result: { id: before.id, status: "written_off" as const, approvalRequestId: null },
+      result: { id: before.id, status: "written_off", approvalRequestId: null },
     };
   },
 });
