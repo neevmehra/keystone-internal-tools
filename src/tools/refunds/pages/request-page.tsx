@@ -21,7 +21,7 @@ function TransactionList({ results }: { results: LookupTransaction[] }) {
           className={
             t.refundId || t.refundable
               ? "relative flex flex-wrap items-center gap-4 px-4 py-3 text-sm transition-colors first:rounded-t-lg last:rounded-b-lg hover:bg-muted/40 has-[a:focus-visible]:bg-muted/40"
-              : "flex flex-wrap items-center gap-4 px-4 py-3 text-sm opacity-70"
+              : "flex flex-wrap items-center gap-4 bg-muted/30 px-4 py-3 text-sm first:rounded-t-lg last:rounded-b-lg"
           }
         >
           <div className="min-w-40">
