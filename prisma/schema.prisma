@@ -196,3 +196,38 @@ model AccessReviewItem {
   @@unique([reviewId, userId])
   @@index([reviewId, decision])
 }
+
+// Chargebacks tool. A card dispute against a transaction. Statuses:
+// open (unassigned) -> in_progress (picked up) -> won | lost | written_off.
+// A lost dispute over the write-off threshold stays "lost" until finance
+// approves the write-off. customerEmail is denormalized for display and is
+// PII (masked for users without pii:read).
+model Dispute {
+  id             String    @id
+  transactionId  String
+  customerId     String
+  customerEmail  String
+  amountCents    Int
+  currency       String    @default("USD")
+  merchant       String
+  cardLast4      String
+  network        String // visa | mastercard
+  reasonCode     String // fraud | not_received | not_as_described | duplicate | canceled_subscription | other
+  status         String // open | in_progress | won | lost | written_off
+  assignedToId   String?
+  assignedToName String?
+  assignedAt     DateTime?
+  evidenceNote   String?
+  evidenceAt     DateTime?
+  openedAt       DateTime
+  respondBy      DateTime
+  resolvedAt     DateTime?
+  writtenOffAt   DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([status, respondBy])
+  @@index([customerId])
+  @@index([transactionId])
+  @@index([resolvedAt])
+}

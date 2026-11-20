@@ -10,6 +10,7 @@ import { DEMO_IDENTITIES } from "../src/platform/auth/demo-identities";
 import { rolesForGroups } from "../src/platform/auth/group-role-map";
 import { seedRefunds } from "./seeds/refunds";
 import { seedGovernance } from "./seed-governance";
+import { seedChargebacks } from "./seeds/chargebacks";
 
 export const CUSTOMER_COUNT = 1_000;
 export const TRANSACTION_COUNT = 5_000;
@@ -229,7 +230,8 @@ async function seedDemoApprovals(prisma: PrismaClient) {
 
 async function main() {
   const prisma = new PrismaClient();
-  const { customers, transactions } = buildSeedData();
+  const anchor = anchorDate();
+  const { customers, transactions } = buildSeedData(anchor);
   await prisma.$transaction(async (tx) => {
     await tx.cardTransaction.deleteMany();
     await tx.customer.deleteMany();
@@ -248,6 +250,8 @@ async function main() {
   const demoApprovals = await seedDemoApprovals(prisma);
   if (demoApprovals) console.log(`Seeded ${demoApprovals} demo approvals (tool "demo").`);
   await seedGovernance(prisma, anchorDate());
+  const chargebacks = await seedChargebacks(prisma, anchor, { customers, transactions });
+  console.log(`Seeded ${chargebacks.disputes} chargeback disputes.`);
   await prisma.$disconnect();
 }
 
