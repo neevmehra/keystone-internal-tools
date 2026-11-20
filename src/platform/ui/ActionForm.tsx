@@ -25,7 +25,7 @@ type Result = { ok: true } | { ok: false; error: { message: string; issues?: Arr
  * Form for a defineAction export. Money fields are entered in dollars and
  * sent as integer cents. Every submit ends in a toast.
  */
-export function ActionForm({
+export function ActionForm<I extends Record<string, unknown>>({
   action,
   fields,
   hidden = {},
@@ -33,7 +33,7 @@ export function ActionForm({
   successMessage = "Saved",
   variant = "default",
 }: {
-  action: (input: Record<string, unknown>) => Promise<Result>;
+  action: (input: I) => Promise<Result>;
   fields: ActionFormField[];
   hidden?: Record<string, string | number>;
   submitLabel?: string;
@@ -54,7 +54,7 @@ export function ActionForm({
       input[f.name] = f.type === "money" ? Math.round(Number(raw) * 100) : f.type === "number" ? Number(raw) : raw;
     }
     startTransition(async () => {
-      const res = await action(input);
+      const res = await action(input as I);
       if (res.ok) {
         setErrors({});
         toast.success(successMessage);

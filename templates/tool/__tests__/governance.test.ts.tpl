@@ -15,7 +15,8 @@ describe("__TOOL_NAME__ governance", () => {
   it("is registered with a valid manifest", () => {
     expect(tools).toContainEqual(manifest);
     expect(PERMISSIONS).toContain(manifest.readPermission);
-    if (manifest.sensitivity !== "internal") expect(manifest.piiFields?.length).toBeGreaterThan(0);
+    const sensitivity: string = manifest.sensitivity;
+    if (sensitivity !== "internal") expect(manifest.piiFields?.length).toBeGreaterThan(0);
   });
 
   it("only exports defineAction actions scoped to this tool", () => {

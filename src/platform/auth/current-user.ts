@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { cache } from "react";
 import { db } from "@/platform/db";
 import { fromJson } from "@/platform/json";
@@ -8,6 +9,7 @@ import { MOCK_SESSION_COOKIE, verifySessionToken } from "./mock-session";
 import type { CurrentUser } from "./types";
 
 async function sessionUserId(): Promise<string | null> {
+  await connection();
   if (getAuthMode() === "mock") {
     const jar = await cookies();
     return verifySessionToken(jar.get(MOCK_SESSION_COOKIE)?.value);

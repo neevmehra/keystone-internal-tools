@@ -5,12 +5,7 @@ export function formatCurrency(cents: number, currency = "USD"): string {
 }
 
 export function formatAbsolute(date: Date): string {
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "UTC",
-    timeZoneName: "short",
-  }).format(date);
+  return `${new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }).format(date)} UTC`;
 }
 
 export function formatRelative(date: Date, now = new Date()): string {

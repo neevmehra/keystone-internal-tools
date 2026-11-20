@@ -6,11 +6,6 @@ import { EmptyState } from "@/platform/ui/EmptyState";
 import { StatusBadge } from "@/platform/ui/StatusBadge";
 import { ToolIcon } from "@/platform/ui/ToolIcon";
 
-function greeting(now = new Date()) {
-  const h = now.getHours();
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-}
-
 export default async function PortalHome() {
   const user = await requireUser();
   const tools = toolsForUser(user);
@@ -19,7 +14,7 @@ export default async function PortalHome() {
     <div className="space-y-8">
       <div>
         <h1 className="text-xl font-semibold tracking-tight">
-          {greeting()}, {firstName}
+          Welcome back, {firstName}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Signed in as <span className="font-mono text-xs">{user.roles.join(", ")}</span>. You see the tools your groups give you access to.

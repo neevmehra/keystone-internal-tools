@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { demoSignInAction, oidcSignInAction } from "@/platform/auth/actions";
 import { getAuthMode } from "@/platform/auth/config";
 import { getCurrentUser } from "@/platform/auth/current-user";
@@ -39,6 +40,7 @@ function IdentityCard({ identity }: { identity: DemoIdentity }) {
 }
 
 export default async function SignInPage() {
+  await connection();
   const mode = getAuthMode();
   const user = await getCurrentUser();
   if (user) redirect(user.roles.length ? "/" : "/access-not-provisioned");
