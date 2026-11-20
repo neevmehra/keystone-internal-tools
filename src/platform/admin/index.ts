@@ -15,7 +15,8 @@ export type AccessMatrix = {
 };
 
 export function accessMatrix(): AccessMatrix {
-  const grants = Object.fromEntries(ROLES.map((r) => [r, new Set<string>(ROLE_PERMISSIONS[r])])) as Record<Role, ReadonlySet<string>>;
+  const grants = {} as Record<Role, ReadonlySet<string>>;
+  for (const r of ROLES) grants[r] = new Set<string>(ROLE_PERMISSIONS[r]);
   return { roles: ROLES, permissions: PERMISSIONS, grants };
 }
 

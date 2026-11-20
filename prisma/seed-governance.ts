@@ -4,7 +4,7 @@
  * and this quarter's, in progress. Audit events are written for every step so
  * the audit log and evidence pack have history. Fake people only.
  */
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient, User } from "@prisma/client";
 import { DEMO_IDENTITIES, UNPROVISIONED_DEMO_IDENTITY } from "../src/platform/auth/demo-identities";
 import { rolesForGroups } from "../src/platform/auth/group-role-map";
 
@@ -20,7 +20,7 @@ const quarterName = (d: Date) => `Q${Math.floor(d.getUTCMonth() / 3) + 1} ${d.ge
 
 export async function seedGovernance(prisma: PrismaClient, anchor: Date) {
   const identities = [...DEMO_IDENTITIES, UNPROVISIONED_DEMO_IDENTITY];
-  const users = [];
+  const users: Array<{ username: string; user: User }> = [];
   for (const id of identities) {
     const groups = [...id.groups].sort();
     const data = {
