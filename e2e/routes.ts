@@ -62,6 +62,16 @@ export const SMOKE_ROUTES: SmokeRoute[] = [
   { as: "maria", path: "/admin", expectPath: "/forbidden" },
   { as: "alex", path: "/admin/access-reviews", expectPath: "/forbidden" },
 
+  // Chargebacks (dsp_000001: olivia marked it lost; write-off awaits finance)
+  { as: "olivia", path: "/tools/chargebacks", expectText: "Due this week", screenshot: "chargebacks-queue-olivia" },
+  { as: "olivia", path: "/tools/chargebacks?status=all&sort=resolvedAt&dir=desc", expectPath: "/tools/chargebacks" },
+  { as: "olivia", path: "/tools/chargebacks/dsp_000001", expectText: "Waiting for someone else to approve" },
+  { as: "dan", path: "/tools/chargebacks/dsp_000001", expectText: "Approve", screenshot: "chargebacks-writeoff-dan" },
+  { as: "alex", path: "/tools/chargebacks", expectText: "•••@", screenshot: "chargebacks-queue-alex-masked" },
+  { as: "alex", path: "/tools/chargebacks/dsp_000001", expectText: "•••@", screenshot: "chargebacks-detail-alex-masked" },
+  { as: "chris", path: "/tools/chargebacks/dsp_000001", expectText: "Evidence sent" },
+  { as: "maria", path: "/tools/chargebacks", expectPath: "/forbidden" },
+
   // Unprovisioned identity
   { as: "contractor", path: "/", expectPath: "/access-not-provisioned", screenshot: "access-not-provisioned" },
 ];
