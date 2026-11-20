@@ -64,7 +64,7 @@ describe("defineAction", () => {
 
   it("blocks users without the permission and writes nothing", async () => {
     const c = await makeCustomer();
-    asUser(makeUser({ roles: ["auditor"] }));
+    asUser(makeUser({ roles: ["auditor"], permissions: ["audit:read"] })); // lacks requests:create
     const res = await setRiskTier({ customerId: c.id, riskTier: "high" });
     expect(res).toMatchObject({ ok: false, error: { code: "FORBIDDEN" } });
     expect(runSpy).not.toHaveBeenCalled();
@@ -73,7 +73,7 @@ describe("defineAction", () => {
   });
 
   it("checks the permission before validating input", async () => {
-    asUser(makeUser({ roles: ["auditor"] }));
+    asUser(makeUser({ roles: ["auditor"], permissions: ["audit:read"] })); // lacks requests:create
     const res = await setRiskTier({ customerId: "x", riskTier: "nope" as "low" });
     expect(res).toMatchObject({ ok: false, error: { code: "FORBIDDEN" } });
   });
