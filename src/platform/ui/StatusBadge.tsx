@@ -4,7 +4,7 @@ import { humanize } from "./format";
 type Tone = "neutral" | "info" | "success" | "warning" | "danger";
 
 const TONES: Record<Tone, string> = {
-  neutral: "bg-muted text-muted-foreground ring-border",
+  neutral: "bg-muted text-zinc-700 ring-border",
   info: "bg-blue-50 text-blue-700 ring-blue-200",
   success: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   warning: "bg-amber-50 text-amber-800 ring-amber-200",
