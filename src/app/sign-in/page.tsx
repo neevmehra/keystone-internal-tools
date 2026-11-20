@@ -28,15 +28,11 @@ function IdentityCard({ identity }: { identity: DemoIdentity }) {
           </div>
         </div>
         <p className="mt-3 flex-1 text-sm leading-snug text-muted-foreground">{identity.purpose}</p>
-        <div className="mt-4 flex items-center justify-between gap-2 border-t pt-3">
-          <span className={roles[0] ? "truncate text-xs font-medium text-foreground" : "truncate text-xs font-medium text-amber-700"}>{role}</span>
-          <span className="flex min-w-0 gap-1">
-            {identity.groups.map((g) => (
-              <span key={g} title={`IdP group: ${g}`} className="truncate rounded-md border bg-muted/50 px-1.5 py-0.5 text-[11px] text-muted-foreground">
-                {groupLabel(g)}
-              </span>
-            ))}
-          </span>
+        <div className="mt-4 border-t pt-3">
+          <p className={roles[0] ? "text-xs font-medium text-foreground" : "text-xs font-medium text-amber-700"}>{role}</p>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground" title={`IdP group: ${identity.groups.join(", ")}`}>
+            Group: {identity.groups.map(groupLabel).join(", ")}
+          </p>
         </div>
       </button>
     </form>
