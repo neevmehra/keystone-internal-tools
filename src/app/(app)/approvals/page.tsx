@@ -120,7 +120,7 @@ export default async function ApprovalsPage({ searchParams }: { searchParams: Pr
       requestedBy: (
         <span>
           {r.requestedByName}
-          {r.isOwn && <span className="ml-1.5 rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground">you</span>}
+          {r.isOwn && <span className="ml-1.5 rounded bg-muted px-1 py-0.5 text-[10px] text-zinc-700">you</span>}
         </span>
       ),
       createdAt: <RelativeTime date={r.createdAt} />,

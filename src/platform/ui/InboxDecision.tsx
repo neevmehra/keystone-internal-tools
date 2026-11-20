@@ -63,7 +63,7 @@ export function InboxDecision({ requestId, summary }: { requestId: string; summa
           className="h-8 w-44 text-xs sm:w-52"
           disabled={pending}
         />
-        <Button type="submit" size="sm" variant="destructive" className="h-8" disabled={pending}>
+        <Button type="submit" size="sm" variant="destructive" className="h-8 text-red-700 hover:text-red-800" disabled={pending}>
           {pending ? "Rejecting…" : "Reject"}
         </Button>
         <Button
