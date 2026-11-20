@@ -5,6 +5,7 @@ import { requireUser } from "@/platform/auth";
 import { toolsForUser } from "@/platform/registry";
 import { EmptyState } from "@/platform/ui/EmptyState";
 import { humanize } from "@/platform/ui/format";
+import { roleLabel, toolLabel } from "@/platform/ui/labels";
 import { Money } from "@/platform/ui/Money";
 import { RelativeTime } from "@/platform/ui/RelativeTime";
 import { StatusBadge } from "@/platform/ui/StatusBadge";
@@ -23,7 +24,7 @@ export default async function PortalHome() {
           Welcome back, {firstName}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Signed in as <span className="font-mono text-xs">{user.roles.join(", ")}</span>. You see the tools your groups give you access to.
+          Signed in as <span className="font-medium text-foreground">{user.roles.map(roleLabel).join(", ")}</span>. You see the tools your groups give you access to.
         </p>
       </div>
 
@@ -80,8 +81,8 @@ export default async function PortalHome() {
                   <Link href="/approvals" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/40">
                     <div className="min-w-0 flex-1 leading-tight">
                       <p className="truncate text-sm">
-                        {humanize(r.actionType.split(".").pop() ?? r.actionType)}
-                        <span className="text-muted-foreground"> · {r.toolName}</span>
+                        {humanize(r.actionType.split(".").pop() ?? r.actionType).replace(/\bdevin\b/gi, "Devin")}
+                        <span className="text-muted-foreground"> · {toolLabel(r.toolName)}</span>
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {r.requestedByName} · <RelativeTime date={r.createdAt} />

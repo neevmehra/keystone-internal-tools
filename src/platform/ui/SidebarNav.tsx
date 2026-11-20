@@ -21,19 +21,23 @@ function Item({ item, pathname }: { item: NavItem; pathname: string }) {
       <Link
         href={item.href}
         className={cn(
-          "flex h-8 items-center gap-2 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground [&_svg]:size-4",
-          active && "bg-muted font-medium text-foreground",
+          "flex h-8 items-center gap-2 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none [&_svg]:size-4 [&_svg]:shrink-0",
+          active && "bg-muted font-medium text-foreground [&_svg]:text-primary",
         )}
       >
         {item.icon}
         <span className="truncate">{item.label}</span>
-        {item.badge ? <span className="ml-auto rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">{item.badge}</span> : null}
+        {item.badge ? (
+          <span className="ml-auto min-w-5 rounded-full bg-primary px-1.5 text-center text-[10px] leading-4 font-semibold text-primary-foreground tabular-nums" aria-label={`${item.badge} pending`}>
+            {item.badge > 99 ? "99+" : item.badge}
+          </span>
+        ) : null}
       </Link>
       {item.children && active && (
         <ul className="mt-0.5 ml-6 space-y-0.5 border-l pl-2">
           {item.children.map((c) => (
             <li key={c.href}>
-              <Link href={c.href} className={cn("block rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground", pathname === c.href && "text-foreground")}>
+              <Link href={c.href} className={cn("block rounded px-2 py-1.5 text-[13px] text-muted-foreground hover:bg-muted hover:text-foreground", pathname === c.href && "font-medium text-foreground")}>
                 {c.label}
               </Link>
             </li>
@@ -48,7 +52,7 @@ export function SidebarNav({ main, tools, platform }: { main: NavItem[]; tools: 
   const pathname = usePathname();
   const section = (title: string, items: NavItem[], empty?: string) => (
     <div className="space-y-1">
-      <p className="px-2 text-[11px] font-medium tracking-wide text-muted-foreground/70 uppercase">{title}</p>
+      <p className="px-2 pb-0.5 text-[11px] font-semibold tracking-wider text-sidebar-section uppercase">{title}</p>
       {items.length ? (
         <ul className="space-y-0.5">
           {items.map((i) => (

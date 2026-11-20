@@ -367,6 +367,25 @@ async function flows(browser: Browser) {
         await page.waitForTimeout(500);
         await page.screenshot({ path: path.join(outDir, "mobile-maria-02-menu-open.png") });
         flowLog.push({ flow: "mobile-nav", step: "open menu", ok: true, clicks: 1 });
+        await page.keyboard.press("Escape");
+        await page.waitForTimeout(300);
+        const account = page.getByRole("button", { name: /account menu/i }).first();
+        if (await account.count()) {
+          await account.click();
+          await page.waitForTimeout(400);
+          await page.screenshot({ path: path.join(outDir, "mobile-maria-03-account-menu.png") });
+          flowLog.push({ flow: "mobile-nav", step: "open account menu", ok: true, clicks: 1 });
+          await page.keyboard.press("Escape");
+          await page.waitForTimeout(300);
+        }
+        const search = page.getByRole("button", { name: "Search", exact: true }).first();
+        if (await search.count()) {
+          await search.click();
+          await page.getByRole("combobox").fill("txn_000021");
+          await page.waitForTimeout(1500);
+          await page.screenshot({ path: path.join(outDir, "mobile-maria-04-search.png") });
+          flowLog.push({ flow: "mobile-nav", step: "search from phone", ok: true, clicks: 1 });
+        }
       } else {
         findings.push({ page: "flow:mobile-nav", viewport: "mobile", kind: "no-mobile-menu", detail: "no button named menu/navigation found on a 390px screen" });
         flowLog.push({ flow: "mobile-nav", step: "open menu", ok: false, note: "no menu button", clicks: 0 });
