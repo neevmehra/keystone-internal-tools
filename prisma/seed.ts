@@ -113,6 +113,119 @@ async function seedDemoUsers(tx: Prisma.TransactionClient) {
   return users;
 }
 
+const HOUR_MS = 60 * 60 * 1000;
+
+/**
+ * DEMO DATA, NOT A TOOL. A few approvals under tool "demo" so the approvals
+ * inbox, notifications and /insights have something to show before real tools
+ * (Refunds, Chargebacks) seed their own. Delete this function, its call in
+ * main(), and the "demo:approve" permission once they do.
+ */
+async function seedDemoApprovals(prisma: PrismaClient) {
+  if ((await prisma.approvalRequest.count({ where: { tool: "demo" } })) > 0) return 0;
+
+  // Demo users exist before first sign-in so requests can name them. Sign-in
+  // upserts the same subject, so IDs stay stable.
+  const ids: Record<string, { id: string; name: string; roles: string[] }> = {};
+  for (const d of DEMO_IDENTITIES) {
+    const roles = rolesForGroups(d.groups);
+    const user = await prisma.user.upsert({
+      where: { subject: d.subject },
+      create: { subject: d.subject, email: d.email, name: d.name, groups: JSON.stringify([...d.groups].sort()), roles: JSON.stringify(roles) },
+      update: {},
+    });
+    ids[d.username] = { id: user.id, name: user.name, roles };
+  }
+
+  const now = Date.now();
+  type Demo = {
+    by: string;
+    actionType: string;
+    entityType: string;
+    entityId: string;
+    amountCents: number;
+    ageHours: number;
+    decision?: { by: string; status: "approved" | "rejected"; afterHours: number; reason: string };
+  };
+  const demos: Demo[] = [
+    { by: "sam", actionType: "demo.vendor_payment", entityType: "VendorPayment", entityId: "vp_1042", amountCents: 485_000, ageHours: 2 },
+    { by: "olivia", actionType: "demo.credit_limit_increase", entityType: "Customer", entityId: "cus_00042", amountCents: 1_500_000, ageHours: 9 },
+    { by: "priya", actionType: "demo.vendor_payment", entityType: "VendorPayment", entityId: "vp_1043", amountCents: 120_000, ageHours: 30 },
+    { by: "maria", actionType: "demo.fee_waiver", entityType: "Customer", entityId: "cus_00117", amountCents: 3_500, ageHours: 96 },
+    {
+      by: "sam", actionType: "demo.vendor_payment", entityType: "VendorPayment", entityId: "vp_1031", amountCents: 92_000, ageHours: 72,
+      decision: { by: "dan", status: "approved", afterHours: 3, reason: "Matches the signed contract." },
+    },
+    {
+      by: "olivia", actionType: "demo.credit_limit_increase", entityType: "Customer", entityId: "cus_00311", amountCents: 800_000, ageHours: 144,
+      decision: { by: "priya", status: "rejected", afterHours: 20, reason: "Missing the customer's income statement." },
+    },
+    {
+      by: "maria", actionType: "demo.fee_waiver", entityType: "Customer", entityId: "cus_00090", amountCents: 2_500, ageHours: 48,
+      decision: { by: "priya", status: "approved", afterHours: 0.7, reason: "First late fee in two years." },
+    },
+  ];
+
+  let n = 0;
+  for (const d of demos) {
+    n++;
+    const requester = ids[d.by];
+    const createdAt = new Date(now - d.ageHours * HOUR_MS);
+    const decider = d.decision ? ids[d.decision.by] : null;
+    const decidedAt = d.decision ? new Date(createdAt.getTime() + d.decision.afterHours * HOUR_MS) : null;
+    const req = await prisma.approvalRequest.create({
+      data: {
+        tool: "demo",
+        actionType: d.actionType,
+        entityType: d.entityType,
+        entityId: d.entityId,
+        payload: JSON.stringify({ demo: true }),
+        amountCents: d.amountCents,
+        status: d.decision?.status ?? "pending",
+        requestedById: requester.id,
+        requestedByName: requester.name,
+        decidedById: decider?.id ?? null,
+        decidedByName: decider?.name ?? null,
+        decidedAt,
+        reason: d.decision?.reason ?? null,
+        approvePermission: "demo:approve",
+        idempotencyKey: `demo_seed_${n}`,
+        createdAt,
+      },
+    });
+    const event = (actor: { id: string; name: string; roles: string[] }, action: string, at: Date, after: object) => ({
+      actorId: actor.id,
+      actorName: actor.name,
+      actorRoles: JSON.stringify(actor.roles),
+      tool: "demo",
+      action,
+      entityType: "ApprovalRequest",
+      entityId: req.id,
+      before: null,
+      after: JSON.stringify(after),
+      requestId: req.id,
+      createdAt: at,
+    });
+    // The notifications the approvals engine would have sent.
+    const deciders = ["dan", "priya"].filter((u) => u !== d.by).map((u) => ids[u].id);
+    const label = `${d.actionType.split(".").pop()!.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())} · $${(d.amountCents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+    await prisma.notification.createMany({
+      data: d.decision
+        ? [{ channel: "in_app", userId: requester.id, kind: "approval.decided", title: `${d.decision.status === "approved" ? "Approved" : "Rejected"}: ${label}`, body: `${decider?.name} ${d.decision.status} your request: "${d.decision.reason}"`, href: "/approvals?tab=mine", createdAt: decidedAt ?? createdAt }]
+        : deciders.map((userId) => ({ channel: "in_app", userId, kind: "approval.requested", title: `Approval needed: ${label}`, body: `${requester.name} requested ${d.actionType.replace(/[._]/g, " ")} in Demo.`, href: "/approvals", createdAt })),
+    });
+    await prisma.auditEvent.createMany({
+      data: [
+        event(requester, "approval.request", createdAt, { status: "pending" }),
+        ...(d.decision && decider && decidedAt
+          ? [event(decider, d.decision.status === "approved" ? "approval.approve" : "approval.reject", decidedAt, { status: d.decision.status, reason: d.decision.reason })]
+          : []),
+      ],
+    });
+  }
+  return demos.length;
+}
+
 async function main() {
   const prisma = new PrismaClient();
   const { customers, transactions } = buildSeedData();
@@ -131,6 +244,8 @@ async function main() {
   const users = await prisma.$transaction((tx) => seedDemoUsers(tx));
   const refunds = await prisma.$transaction((tx) => seedRefunds(tx, { transactions, users, anchor: anchorDate() }), { timeout: 60_000 });
   console.log(`Seeded ${Object.keys(users).length} demo users and ${refunds} refunds.`);
+  const demoApprovals = await seedDemoApprovals(prisma);
+  if (demoApprovals) console.log(`Seeded ${demoApprovals} demo approvals (tool "demo").`);
   await prisma.$disconnect();
 }
 

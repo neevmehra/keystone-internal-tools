@@ -1,11 +1,13 @@
-import { ClipboardCheck, Hammer, Home, ScrollText, Settings } from "lucide-react";
+import { BarChart3, ClipboardCheck, Hammer, Home, ScrollText, Settings } from "lucide-react";
 import type { ReactNode } from "react";
 import { countPendingForUser } from "@/platform/approvals";
 import { signOutAction } from "@/platform/auth/actions";
 import type { CurrentUser } from "@/platform/auth/types";
+import { notificationsForUser } from "@/platform/notifications";
 import { hasPermission } from "@/platform/rbac";
 import { toolsForUser } from "@/platform/registry";
 import { PLATFORM_ROUTES } from "./nav-config";
+import { NotificationBell } from "./NotificationBell";
 import { SidebarNav, type NavItem } from "./SidebarNav";
 import { ToolIcon } from "./ToolIcon";
 
@@ -20,6 +22,7 @@ async function navFor(user: CurrentUser): Promise<{ main: NavItem[]; tools: NavI
     const pending = await countPendingForUser(user);
     platform.push({ href: PLATFORM_ROUTES.approvals.href, label: "Approvals", icon: <ClipboardCheck />, badge: pending || undefined });
   }
+  if (can("insights")) platform.push({ href: PLATFORM_ROUTES.insights.href, label: "Insights", icon: <BarChart3 /> });
   if (can("build")) platform.push({ href: PLATFORM_ROUTES.build.href, label: "Build with Devin", icon: <Hammer /> });
   if (can("audit")) platform.push({ href: PLATFORM_ROUTES.audit.href, label: "Audit", icon: <ScrollText /> });
   if (can("admin")) platform.push({ href: PLATFORM_ROUTES.admin.href, label: "Admin", icon: <Settings /> });
@@ -36,7 +39,7 @@ async function navFor(user: CurrentUser): Promise<{ main: NavItem[]; tools: NavI
 }
 
 export async function AppShell({ user, children }: { user: CurrentUser; children: ReactNode }) {
-  const nav = await navFor(user);
+  const [nav, notifications] = await Promise.all([navFor(user), notificationsForUser(user.id)]);
   const initials = user.name
     .split(/\s+/)
     .map((p) => p[0])
@@ -69,6 +72,17 @@ export async function AppShell({ user, children }: { user: CurrentUser; children
                 </span>
               ))}
             </div>
+            <NotificationBell
+              unread={notifications.unread}
+              items={notifications.items.map((n) => ({
+                id: n.id,
+                title: n.title,
+                body: n.body,
+                href: n.href,
+                read: n.readAt !== null,
+                createdAt: n.createdAt.toISOString(),
+              }))}
+            />
             <div className="flex items-center gap-2">
               <div className="flex size-7 items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary">{initials}</div>
               <div className="hidden leading-tight sm:block">

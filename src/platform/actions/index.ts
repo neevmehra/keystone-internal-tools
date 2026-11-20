@@ -3,6 +3,7 @@ import { recordAudit } from "@/platform/audit";
 import { getCurrentUser } from "@/platform/auth/current-user";
 import type { CurrentUser } from "@/platform/auth/types";
 import { db, type Tx } from "@/platform/db";
+import { deliverPendingNotifications } from "@/platform/notifications";
 import { KeystoneError, UnauthenticatedError, ValidationError, type KeystoneErrorCode } from "@/platform/errors";
 import { requirePermission } from "@/platform/rbac";
 import type { Permission } from "@/platform/rbac/permissions";
@@ -68,6 +69,8 @@ export function defineAction<S extends z.ZodType, R>(definition: ActionDefinitio
         });
         return { out, auditEventId: audit.id };
       });
+      // Slack messages recorded during the action go out only after commit.
+      await deliverPendingNotifications();
       return { ok: true, result: out.result, auditEventId };
     } catch (err) {
       if (err instanceof KeystoneError) {

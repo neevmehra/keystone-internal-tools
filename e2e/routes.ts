@@ -43,6 +43,14 @@ export const SMOKE_ROUTES: SmokeRoute[] = [
   { as: "alex", path: "/tools/refunds/ref_demo_pending", expectText: "•••@", screenshot: "refund-detail-alex-masked" },
   { as: "alex", path: "/tools/refunds?status=executed", expectText: "Executed" },
 
+  // Approvals inbox and insights
+  { as: "dan", path: "/approvals", expectText: "Approvals", screenshot: "approvals-dan" },
+  { as: "dan", path: "/approvals?tab=decided", expectText: "Decided by me" },
+  { as: "priya", path: "/approvals", expectText: "Waiting on someone else", screenshot: "approvals-priya-own-request" },
+  { as: "maria", path: "/approvals", expectPath: "/forbidden" },
+  { as: "admin", path: "/insights", expectText: "self-approved", screenshot: "insights-admin" },
+  { as: "maria", path: "/insights", expectPath: "/forbidden" },
+
   // Unprovisioned identity
   { as: "contractor", path: "/", expectPath: "/access-not-provisioned", screenshot: "access-not-provisioned" },
 ];

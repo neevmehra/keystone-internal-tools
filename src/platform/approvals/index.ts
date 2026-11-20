@@ -14,8 +14,10 @@ import { recordAudit, type AuditActor } from "@/platform/audit";
 import { db, type Tx } from "@/platform/db";
 import { ConflictError, NotFoundError, SelfApprovalError, ValidationError } from "@/platform/errors";
 import { fromJson } from "@/platform/json";
+import { deliverPendingNotifications, safeNotify, userIdsWithPermission } from "@/platform/notifications";
 import { hasPermission, requirePermission } from "@/platform/rbac";
 import type { Permission } from "@/platform/rbac/permissions";
+import { formatCurrency, humanize } from "@/platform/ui/format";
 
 export const APPROVAL_STATUSES = ["pending", "approved", "rejected", "executed", "failed"] as const;
 export const approvalStatusSchema = z.enum(APPROVAL_STATUSES);
@@ -74,6 +76,21 @@ function inTx<T>(tx: Tx | undefined, fn: (tx: Tx) => Promise<T>): Promise<T> {
   return tx ? fn(tx) : db.$transaction(fn);
 }
 
+function summarize(r: ApprovalRequest) {
+  const what = humanize(r.actionType.split(".").pop() ?? r.actionType);
+  return r.amountCents != null ? `${what} · ${formatCurrency(r.amountCents)}` : what;
+}
+
+async function notifyDeciders(tx: Tx, r: ApprovalRequest) {
+  await safeNotify(tx, async (t) => ({
+    kind: "approval.requested",
+    userIds: await userIdsWithPermission(t, r.approvePermission, [r.requestedById]),
+    title: `Approval needed: ${summarize(r)}`,
+    body: `${r.requestedByName} requested ${humanize(r.actionType)} in ${humanize(r.tool)}.`,
+    href: "/approvals",
+  }));
+}
+
 export const requestApprovalInput = z.object({
   tool: z.string().min(1),
   actionType: z.string().min(1),
@@ -95,7 +112,7 @@ export async function requestApproval(
   const parsed = requestApprovalInput.safeParse(input);
   if (!parsed.success) throw new ValidationError("Invalid approval request.");
   const data = parsed.data;
-  return inTx(tx, async (t) => {
+  const created = await inTx(tx, async (t) => {
     const created = await t.approvalRequest.create({
       data: {
         tool: data.tool,
@@ -113,12 +130,16 @@ export async function requestApproval(
       },
     });
     await audit(t, user, "approval.request", null, created);
+    await notifyDeciders(t, created);
     return created;
   });
+  // With a caller's transaction, defineAction delivers after it commits.
+  if (!tx) await deliverPendingNotifications();
+  return created;
 }
 
 async function decide(user: ApprovalUser, requestId: string, to: "approved" | "rejected", reason?: string) {
-  return db.$transaction(async (tx) => {
+  const decided = await db.$transaction(async (tx) => {
     const req = await tx.approvalRequest.findUnique({ where: { id: requestId } });
     if (!req) throw new NotFoundError("Approval request");
     if (req.requestedById === user.id) throw new SelfApprovalError(req.approvePermission);
@@ -131,8 +152,17 @@ async function decide(user: ApprovalUser, requestId: string, to: "approved" | "r
     if (count !== 1) throw new ConflictError("Request was decided by someone else.");
     const updated = await tx.approvalRequest.findUniqueOrThrow({ where: { id: requestId } });
     await audit(tx, user, to === "approved" ? "approval.approve" : "approval.reject", req, updated);
+    await safeNotify(tx, {
+      kind: "approval.decided",
+      userIds: [updated.requestedById],
+      title: `${to === "approved" ? "Approved" : "Rejected"}: ${summarize(updated)}`,
+      body: `${user.name} ${to} your request${updated.reason ? `: "${updated.reason}"` : "."}`,
+      href: "/approvals?tab=mine",
+    });
     return updated;
   });
+  await deliverPendingNotifications();
+  return decided;
 }
 
 export function approve(user: ApprovalUser, requestId: string, opts: { reason?: string } = {}) {
@@ -191,8 +221,16 @@ export async function execute(user: ApprovalUser, requestId: string): Promise<Ex
         data: { status: "failed", lastError: message },
       });
       await audit(tx, user, "approval.fail", req, updated);
+      await safeNotify(tx, {
+        kind: "approval.failed",
+        userIds: [updated.requestedById, updated.decidedById ?? ""],
+        title: `Execution failed: ${summarize(updated)}`,
+        body: `${message}. It can be retried safely with the same idempotency key.`,
+        href: "/approvals?tab=mine",
+      });
       return updated;
     });
+    await deliverPendingNotifications();
     return { status: "failed", request: failed, error: message };
   }
 
