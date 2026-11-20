@@ -1,0 +1,607 @@
+{
+  "findings": [
+    {
+      "page": "refunds-queue-maria",
+      "viewport": "desktop",
+      "kind": "a11y:color-contrast",
+      "detail": "serious: Elements must meet minimum color contrast ratio thresholds (19) e.g. .hover\\:bg-muted\\/50.cursor-pointer:nth-child(1) > td:nth-child(5) > .ring-border.bg-muted.ring-1"
+    },
+    {
+      "page": "refund-detail-maria",
+      "viewport": "desktop",
+      "kind": "a11y:color-contrast",
+      "detail": "serious: Elements must meet minimum color contrast ratio thresholds (1) e.g. .ring-border"
+    },
+    {
+      "page": "customer-maria",
+      "viewport": "desktop",
+      "kind": "a11y:color-contrast",
+      "detail": "serious: Elements must meet minimum color contrast ratio thresholds (12) e.g. dd > .bg-muted.ring-border.inline-flex"
+    },
+    {
+      "page": "refund-detail-alex-masked",
+      "viewport": "desktop",
+      "kind": "a11y:color-contrast",
+      "detail": "serious: Elements must meet minimum color contrast ratio thresholds (1) e.g. .ring-border"
+    },
+    {
+      "page": "customer-alex-masked",
+      "viewport": "desktop",
+      "kind": "a11y:color-contrast",
+      "detail": "serious: Elements must meet minimum color contrast ratio thresholds (5) e.g. dd > .bg-muted.ring-border.inline-flex"
+    },
+    {
+      "page": "build-request-pending-admin",
+      "viewport": "desktop",
+      "kind": "a11y:color-contrast",
+      "detail": "serious: Elements must meet minimum color contrast ratio thresholds (1) e.g. .bg-destructive\\/10"
+    },
+    {
+      "page": "build-request-pending-admin",
+      "viewport": "desktop",
+      "kind": "a11y:definition-list",
+      "detail": "serious: <dl> elements must only directly contain properly-ordered <dt> and <dd> groups, <script>, <template> or <div> elements (1) e.g. .space-y-5:nth-child(2) > section > dl"
+    },
+    {
+      "page": "build-request-pending-admin",
+      "viewport": "desktop",
+      "kind": "a11y:scrollable-region-focusable",
+      "detail": "serious: Scrollable region must have keyboard access (1) e.g. pre"
+    },
+    {
+      "page": "refunds-queue-dan",
+      "viewport": "desktop",
+      "kind": "a11y:color-contrast",
+      "detail": "serious: Elements must meet minimum color contrast ratio thresholds (19) e.g. .hover\\:bg-muted\\/50.cursor-pointer:nth-child(1) > td:nth-child(5) > .ring-border.bg-muted.ring-1"
+    },
+    {
+      "page": "refund-detail-dan",
+      "viewport": "desktop",
+      "kind": "a11y:color-contrast",
+      "detail": "serious: Elements must meet minimum color contrast ratio thresholds (2) e.g. .ring-border"
+    },
+    {
+      "page": "chargebacks-writeoff-dan",
+      "viewport": "desktop",
+      "kind": "a11y:color-contrast",
+      "detail": "serious: Elements must meet minimum color contrast ratio thresholds (1) e.g. .bg-destructive\\/10"
+    },
+    {
+      "page": "approvals-priya-own-request",
+      "viewport": "desktop",
+      "kind": "a11y:color-contrast",
+      "detail": "serious: Elements must meet minimum color contrast ratio thresholds (3) e.g. .hover\\:bg-muted\\/50:nth-child(1) > td:nth-child(4) > span > .ml-1\\.5.bg-muted.px-1"
+    },
+    {
+      "page": "build-request-simulation-priya",
+      "viewport": "desktop",
+      "kind": "a11y:scrollable-region-focusable",
+      "detail": "serious: Scrollable region must have keyboard access (2) e.g. .max-h-96"
+    },
+    {
+      "page": "refunds-queue-maria",
+      "viewport": "mobile",
+      "kind": "overflowing-element",
+      "detail": "table \"RefundCustomerAmountReasonStatusRequested byRequestedref_001\""
+    },
+    {
+      "page": "refunds-queue-maria",
+      "viewport": "mobile",
+      "kind": "small-tap-target",
+      "detail": "2: button \"Amount\" 62x16 | button \"Requested\" 83x16"
+    },
+    {
+      "page": "refunds-request-maria",
+      "viewport": "mobile",
+      "kind": "small-tap-target",
+      "detail": "1: a \"Refunds\" 54x18"
+    },
+    {
+      "page": "customer-maria",
+      "viewport": "mobile",
+      "kind": "horizontal-scroll",
+      "detail": "page is 612px wide in a 390px viewport"
+    },
+    {
+      "page": "customer-maria",
+      "viewport": "mobile",
+      "kind": "overflowing-element",
+      "detail": "section \"RefundsOpen Refundsref_demo_pendingProduct not received$250.\" | span \"· Maria Lopez: Refund request\" | span \"· Maria Lopez: Approval request\" | span \"· ref_demo_pending by Maria Lopez\" | time#base-ui-_R_1uhq9bn5ritqkndlb_ \"8 hours ago\""
+    },
+    {
+      "page": "customer-maria",
+      "viewport": "mobile",
+      "kind": "small-tap-target",
+      "detail": "3: a \"Open Refunds\" 81x16 | a \"ref_demo_pending\" 112x16 | a \"ref_00163\" 63x16"
+    },
+    {
+      "page": "audit-alex",
+      "viewport": "mobile",
+      "kind": "overflowing-element",
+      "detail": "table \"WhenActorToolActionRecordChangesjust nowAlex Kimauditorplatf\""
+    },
+    {
+      "page": "audit-alex",
+      "viewport": "mobile",
+      "kind": "small-tap-target",
+      "detail": "42: button \"When\" 50x16 | button \"Actor\" 49x16 | button \"Tool\" 43x16 | button \"Action\" 54x16 | button \"Record\" 60x16 | a \"Open\" 40x14"
+    },
+    {
+      "page": "refund-detail-dan",
+      "viewport": "mobile",
+      "kind": "small-tap-target",
+      "detail": "1: a \"Refunds\" 54x18"
+    },
+    {
+      "page": "approvals-dan",
+      "viewport": "mobile",
+      "kind": "overflowing-element",
+      "detail": "table \"ToolWhatAmountRequested byAgeDecideChargebacksWrite offDispu\""
+    },
+    {
+      "page": "approvals-dan",
+      "viewport": "mobile",
+      "kind": "small-tap-target",
+      "detail": "3: button \"Tool\" 43x16 | button \"Amount\" 62x16 | button \"Age\" 40x16"
+    },
+    {
+      "page": "admin-access-matrix",
+      "viewport": "mobile",
+      "kind": "overflowing-element",
+      "detail": "a \"Access reviews\" | a \"Evidence pack\" | table \"Rolepii:readaudit:readaudit:exportapprovals:viewadmin:readre\" | table \"NameIdP groupsRolesLast sign-inAvery Admina•••@example.compl\""
+    },
+    {
+      "page": "chargebacks-queue-olivia",
+      "viewport": "mobile",
+      "kind": "overflowing-element",
+      "detail": "table \"DisputeCustomerAmountReasonRespond byStatusAssigned todsp_00\""
+    },
+    {
+      "page": "chargebacks-queue-olivia",
+      "viewport": "mobile",
+      "kind": "small-tap-target",
+      "detail": "3: button \"Amount\" 62x16 | button \"Respond by\" 88x16 | button \"Status\" 54x16"
+    },
+    {
+      "page": "build-request-priya",
+      "viewport": "mobile",
+      "kind": "small-tap-target",
+      "detail": "2: input \"\" 16x16 | input \"\" 16x16"
+    }
+  ],
+  "timings": [
+    {
+      "page": "sign-in",
+      "viewport": "desktop",
+      "ms": 674
+    },
+    {
+      "page": "portal-maria",
+      "viewport": "desktop",
+      "ms": 676
+    },
+    {
+      "page": "refunds-queue-maria",
+      "viewport": "desktop",
+      "ms": 864
+    },
+    {
+      "page": "refunds-lookup-maria",
+      "viewport": "desktop",
+      "ms": 756
+    },
+    {
+      "page": "refunds-request-maria",
+      "viewport": "desktop",
+      "ms": 630
+    },
+    {
+      "page": "refund-detail-maria",
+      "viewport": "desktop",
+      "ms": 961
+    },
+    {
+      "page": "customer-maria",
+      "viewport": "desktop",
+      "ms": 964
+    },
+    {
+      "page": "portal-alex",
+      "viewport": "desktop",
+      "ms": 629
+    },
+    {
+      "page": "audit-alex",
+      "viewport": "desktop",
+      "ms": 944
+    },
+    {
+      "page": "refund-detail-alex-masked",
+      "viewport": "desktop",
+      "ms": 846
+    },
+    {
+      "page": "evidence-pack",
+      "viewport": "desktop",
+      "ms": 725
+    },
+    {
+      "page": "audit-diffs",
+      "viewport": "desktop",
+      "ms": 780
+    },
+    {
+      "page": "chargebacks-queue-alex-masked",
+      "viewport": "desktop",
+      "ms": 827
+    },
+    {
+      "page": "chargebacks-detail-alex-masked",
+      "viewport": "desktop",
+      "ms": 887
+    },
+    {
+      "page": "customer-alex-masked",
+      "viewport": "desktop",
+      "ms": 962
+    },
+    {
+      "page": "portal-admin",
+      "viewport": "desktop",
+      "ms": 641
+    },
+    {
+      "page": "insights-admin",
+      "viewport": "desktop",
+      "ms": 804
+    },
+    {
+      "page": "admin-overview",
+      "viewport": "desktop",
+      "ms": 653
+    },
+    {
+      "page": "admin-tool-catalog",
+      "viewport": "desktop",
+      "ms": 687
+    },
+    {
+      "page": "admin-access-matrix",
+      "viewport": "desktop",
+      "ms": 794
+    },
+    {
+      "page": "build-requests-admin",
+      "viewport": "desktop",
+      "ms": 917
+    },
+    {
+      "page": "build-request-pending-admin",
+      "viewport": "desktop",
+      "ms": 900
+    },
+    {
+      "page": "build-impact-admin",
+      "viewport": "desktop",
+      "ms": 712
+    },
+    {
+      "page": "refunds-queue-dan",
+      "viewport": "desktop",
+      "ms": 770
+    },
+    {
+      "page": "refund-detail-dan",
+      "viewport": "desktop",
+      "ms": 911
+    },
+    {
+      "page": "approvals-dan",
+      "viewport": "desktop",
+      "ms": 750
+    },
+    {
+      "page": "chargebacks-writeoff-dan",
+      "viewport": "desktop",
+      "ms": 804
+    },
+    {
+      "page": "approvals-priya-own-request",
+      "viewport": "desktop",
+      "ms": 639
+    },
+    {
+      "page": "build-request-priya",
+      "viewport": "desktop",
+      "ms": 673
+    },
+    {
+      "page": "build-change-request-priya",
+      "viewport": "desktop",
+      "ms": 619
+    },
+    {
+      "page": "build-requests-priya",
+      "viewport": "desktop",
+      "ms": 635
+    },
+    {
+      "page": "build-request-simulation-priya",
+      "viewport": "desktop",
+      "ms": 833
+    },
+    {
+      "page": "access-reviews",
+      "viewport": "desktop",
+      "ms": 700
+    },
+    {
+      "page": "access-review-in-progress",
+      "viewport": "desktop",
+      "ms": 693
+    },
+    {
+      "page": "search-chris",
+      "viewport": "desktop",
+      "ms": 642
+    },
+    {
+      "page": "chargebacks-queue-olivia",
+      "viewport": "desktop",
+      "ms": 755
+    },
+    {
+      "page": "access-not-provisioned",
+      "viewport": "desktop",
+      "ms": 601
+    },
+    {
+      "page": "sign-in",
+      "viewport": "mobile",
+      "ms": 622
+    },
+    {
+      "page": "portal-maria",
+      "viewport": "mobile",
+      "ms": 625
+    },
+    {
+      "page": "refunds-queue-maria",
+      "viewport": "mobile",
+      "ms": 727
+    },
+    {
+      "page": "refunds-request-maria",
+      "viewport": "mobile",
+      "ms": 644
+    },
+    {
+      "page": "customer-maria",
+      "viewport": "mobile",
+      "ms": 915
+    },
+    {
+      "page": "audit-alex",
+      "viewport": "mobile",
+      "ms": 810
+    },
+    {
+      "page": "refund-detail-dan",
+      "viewport": "mobile",
+      "ms": 881
+    },
+    {
+      "page": "approvals-dan",
+      "viewport": "mobile",
+      "ms": 733
+    },
+    {
+      "page": "insights-admin",
+      "viewport": "mobile",
+      "ms": 678
+    },
+    {
+      "page": "admin-access-matrix",
+      "viewport": "mobile",
+      "ms": 713
+    },
+    {
+      "page": "chargebacks-queue-olivia",
+      "viewport": "mobile",
+      "ms": 747
+    },
+    {
+      "page": "build-request-priya",
+      "viewport": "mobile",
+      "ms": 638
+    }
+  ],
+  "flows": [
+    {
+      "flow": "maria-request-refund",
+      "step": "portal",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "maria-request-refund",
+      "step": "open refunds",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "maria-request-refund",
+      "step": "start new request",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "maria-request-refund",
+      "step": "find transaction",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "maria-request-refund",
+      "step": "choose transaction",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "maria-request-refund",
+      "step": "fill and submit",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "maria-request-refund",
+      "step": "TOTAL",
+      "ok": true,
+      "clicks": 5
+    },
+    {
+      "flow": "dan-approve-from-inbox",
+      "step": "portal",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "dan-approve-from-inbox",
+      "step": "open notifications",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "dan-approve-from-inbox",
+      "step": "open approvals",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "dan-approve-from-inbox",
+      "step": "approve first",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "dan-approve-from-inbox",
+      "step": "TOTAL",
+      "ok": true,
+      "clicks": 3
+    },
+    {
+      "flow": "olivia-work-dispute",
+      "step": "queue",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "olivia-work-dispute",
+      "step": "open first unassigned",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "olivia-work-dispute",
+      "step": "pick up",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "olivia-work-dispute",
+      "step": "save evidence note",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "olivia-work-dispute",
+      "step": "mark won",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "olivia-work-dispute",
+      "step": "TOTAL",
+      "ok": true,
+      "clicks": 4
+    },
+    {
+      "flow": "maria-command-search",
+      "step": "portal",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "maria-command-search",
+      "step": "open search with keyboard",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "maria-command-search",
+      "step": "type a transaction id",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "maria-command-search",
+      "step": "open result",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "maria-command-search",
+      "step": "TOTAL",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "priya-request-change",
+      "step": "open build",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "priya-request-change",
+      "step": "change tab",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "priya-request-change",
+      "step": "fill request",
+      "ok": true,
+      "clicks": 0
+    },
+    {
+      "flow": "priya-request-change",
+      "step": "submit",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "priya-request-change",
+      "step": "TOTAL",
+      "ok": true,
+      "clicks": 3
+    },
+    {
+      "flow": "mobile-nav",
+      "step": "open menu",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "mobile-nav",
+      "step": "open account menu",
+      "ok": true,
+      "clicks": 1
+    },
+    {
+      "flow": "mobile-nav",
+      "step": "search from phone",
+      "ok": true,
+      "clicks": 1
+    }
+  ]
+}
