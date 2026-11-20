@@ -5,7 +5,10 @@
  * Never use real customer data here.
  */
 import { faker } from "@faker-js/faker";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, type Prisma } from "@prisma/client";
+import { DEMO_IDENTITIES } from "../src/platform/auth/demo-identities";
+import { rolesForGroups } from "../src/platform/auth/group-role-map";
+import { seedRefunds } from "./seeds/refunds";
 
 export const CUSTOMER_COUNT = 1_000;
 export const TRANSACTION_COUNT = 5_000;
@@ -90,6 +93,26 @@ export function buildSeedData(anchor = anchorDate()) {
   return { customers, transactions };
 }
 
+/**
+ * Demo users, so seeded records can name a requester and approver. Sign-in
+ * upserts by subject, so these rows (and their IDs) are reused when the demo
+ * identities sign in, and roles are recomputed from groups then.
+ */
+async function seedDemoUsers(tx: Prisma.TransactionClient) {
+  const users: Record<string, { id: string; name: string; roles: string[] }> = {};
+  for (const d of DEMO_IDENTITIES) {
+    const groups = [...d.groups].sort();
+    const roles = rolesForGroups(groups);
+    const user = await tx.user.upsert({
+      where: { subject: d.subject },
+      create: { subject: d.subject, email: d.email, name: d.name, groups: JSON.stringify(groups), roles: JSON.stringify(roles) },
+      update: {},
+    });
+    users[d.username] = { id: user.id, name: user.name, roles };
+  }
+  return users;
+}
+
 async function main() {
   const prisma = new PrismaClient();
   const { customers, transactions } = buildSeedData();
@@ -104,6 +127,10 @@ async function main() {
     }
   }, { timeout: 60_000 });
   console.log(`Seeded ${customers.length} customers and ${transactions.length} transactions.`);
+
+  const users = await prisma.$transaction((tx) => seedDemoUsers(tx));
+  const refunds = await prisma.$transaction((tx) => seedRefunds(tx, { transactions, users, anchor: anchorDate() }), { timeout: 60_000 });
+  console.log(`Seeded ${Object.keys(users).length} demo users and ${refunds} refunds.`);
   await prisma.$disconnect();
 }
 

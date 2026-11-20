@@ -25,6 +25,9 @@ export const PLATFORM_PERMISSIONS = [
 // Tool permissions: `<tool>:read`, `<tool>:write`, `<tool>:approve`.
 // `npm run new-tool` adds `<slug>:read` and `<slug>:write` here with no roles.
 export const TOOL_PERMISSIONS = [
+  "refunds:read",
+  "refunds:request",
+  "refunds:approve",
   // keystone:tool-permissions
 ] as const;
 
@@ -32,12 +35,14 @@ export const PERMISSIONS = [...PLATFORM_PERMISSIONS, ...TOOL_PERMISSIONS] as con
 export type Permission = (typeof PERMISSIONS)[number];
 
 export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
-  support_agent: ["requests:create"],
+  // Support talks to customers, so it sees their email (pii:read). Finance
+  // approvers decide on amounts and reasons and don't need it.
+  support_agent: ["requests:create", "pii:read", "refunds:read", "refunds:request"],
   ops_analyst: ["requests:create"],
-  finance_approver: ["approvals:view", "requests:create"],
-  compliance_officer: ["pii:read", "audit:read", "approvals:view"],
-  auditor: ["audit:read", "audit:export"],
-  admin: ["admin:read", "audit:read", "approvals:view", "requests:create", "requests:approve"],
+  finance_approver: ["approvals:view", "requests:create", "refunds:read", "refunds:approve"],
+  compliance_officer: ["pii:read", "audit:read", "approvals:view", "refunds:read"],
+  auditor: ["audit:read", "audit:export", "refunds:read"],
+  admin: ["admin:read", "audit:read", "approvals:view", "requests:create", "requests:approve", "refunds:read"],
 };
 
 export function isPermission(value: string): value is Permission {

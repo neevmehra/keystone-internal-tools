@@ -161,7 +161,8 @@ Deterministic, no AI. It copies `templates/tool/` to `src/tools/<slug>/`, fills 
 
 `scripts/check-governance.ts` fails if:
 - an export in `src/tools/*/actions.ts` isn't created with `defineAction(`
-- a file under `src/tools/` writes through Prisma outside `actions.ts`
+- a file under `src/tools/` writes through Prisma outside `actions.ts` (a tool's `executors.ts` may write too: the approvals engine commits and audits those writes)
+- a tool's route folder, `src/app/(app)/tools/<slug>/`, does more than re-export from the tool (no Prisma writes, no `"use server"`), or has no matching tool
 - a tool is missing `manifest.ts` or `__tests__/`, or isn't in the registry
 - a manifest's `sensitivity` is `pii` or `money` but `piiFields` is missing
 
