@@ -16,7 +16,14 @@ function TransactionList({ results }: { results: LookupTransaction[] }) {
   return (
     <div className="divide-y rounded-lg border bg-card">
       {results.map((t) => (
-        <div key={t.id} className="flex flex-wrap items-center gap-4 px-4 py-3 text-sm">
+        <div
+          key={t.id}
+          className={
+            t.refundId || t.refundable
+              ? "relative flex flex-wrap items-center gap-4 px-4 py-3 text-sm transition-colors first:rounded-t-lg last:rounded-b-lg hover:bg-muted/40 has-[a:focus-visible]:bg-muted/40"
+              : "flex flex-wrap items-center gap-4 bg-muted/30 px-4 py-3 text-sm first:rounded-t-lg last:rounded-b-lg"
+          }
+        >
           <div className="min-w-40">
             <p className="font-mono text-xs">{t.id}</p>
             <p className="text-xs text-muted-foreground">
@@ -33,11 +40,17 @@ function TransactionList({ results }: { results: LookupTransaction[] }) {
           <StatusBadge status={t.status} />
           <div className="ml-auto">
             {t.refundId ? (
-              <Link href={`/tools/refunds/${t.refundId}`} className="text-xs text-muted-foreground underline-offset-2 hover:underline">
+              <Link
+                href={`/tools/refunds/${t.refundId}`}
+                className="text-xs text-muted-foreground underline-offset-2 after:absolute after:inset-0 hover:underline focus-visible:outline-none"
+              >
                 Already refunded: {t.refundId}
               </Link>
             ) : t.refundable ? (
-              <Link href={`/tools/refunds/new?transactionId=${t.id}`} className={buttonVariants({ size: "sm", variant: "outline" })}>
+              <Link
+                href={`/tools/refunds/new?transactionId=${t.id}`}
+                className={`${buttonVariants({ size: "sm", variant: "outline" })} after:absolute after:inset-0`}
+              >
                 Refund
                 <ArrowRight className="size-3.5" />
               </Link>
@@ -81,11 +94,12 @@ export async function RequestPage({ searchParams }: { searchParams: Promise<Sear
             name="q"
             defaultValue={q}
             placeholder={canSearchEmail ? "Transaction ID (txn_000123) or customer email" : "Transaction ID (txn_000123)"}
-            className="pl-8"
+            className="h-9 pl-8"
             aria-label="Find a transaction"
+            autoFocus={!selected}
           />
         </div>
-        <button type="submit" className={buttonVariants({ size: "default" })}>
+        <button type="submit" className={buttonVariants({ size: "lg" })}>
           Find
         </button>
       </form>
@@ -109,11 +123,14 @@ export async function RequestPage({ searchParams }: { searchParams: Promise<Sear
           </div>
           <div className="lg:col-span-2">
             {selected.refundId ? (
-              <EmptyState
-                title="This transaction already has a refund"
-                description="Only one refund per transaction."
-                action={{ label: `Open ${selected.refundId}`, href: `/tools/refunds/${selected.refundId}` }}
-              />
+              <section className="rounded-lg border bg-card p-5">
+                <h3 className="text-sm font-semibold">This transaction has a refund</h3>
+                <p className="mt-1 text-sm text-muted-foreground">Each transaction can be refunded once. Open the refund to see its status and approval.</p>
+                <Link href={`/tools/refunds/${selected.refundId}`} className={`${buttonVariants({ size: "lg" })} mt-4`}>
+                  View refund
+                  <ArrowRight className="size-3.5" />
+                </Link>
+              </section>
             ) : !selected.refundable ? (
               <EmptyState title="Not refundable" description={`Only settled transactions can be refunded. This one is ${selected.status}.`} />
             ) : (

@@ -8,6 +8,7 @@ import { PageHeader } from "@/platform/ui/PageHeader";
 import { RelativeTime } from "@/platform/ui/RelativeTime";
 import { StatCards } from "@/platform/ui/StatCards";
 import { Explained, kindLabel, RequestStatusBadge } from "../components";
+import { toolLabel } from "@/platform/ui/labels";
 
 const usd = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: n >= 1000 ? 0 : 2 }).format(n);
 
@@ -90,7 +91,7 @@ export default async function ImpactPage() {
                       </Link>
                       <p className="text-xs text-muted-foreground">
                         {kindLabel(r.kind)}
-                        {r.toolSlug && <> · {r.toolSlug}</>}
+                        {r.toolSlug && <> · {toolLabel(r.toolSlug)}</>}
                       </p>
                     </td>
                     <td className="px-4 py-2">{r.requestedByName}</td>
@@ -110,7 +111,7 @@ export default async function ImpactPage() {
         <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
           Devin has used <Explained formula={impact.formulas.acus}>{impact.totalAcus} ACUs</Explained>
           {impact.acuCost != null && <> ({usd(impact.acuCost)})</>} across {impact.total} requests. Running the shipped tools (
-          {impact.shippedTools.join(", ") || "none yet"}) on Power Apps Premium would need{" "}
+          {impact.shippedTools.map(toolLabel).join(", ") || "none yet"}) on Power Apps Premium would need{" "}
           <Explained formula={impact.formulas.seats}>{impact.seatUsers} seats</Explained>, about{" "}
           <Explained formula={impact.formulas.seatCost}>{usd(impact.seatCostAnnual)} a year</Explained>. Not counted here: engineer review time, hosting, and
           the ongoing maintenance Keystone now owns.

@@ -103,6 +103,8 @@ async function run(check: Check, first: boolean): Promise<string[]> {
       const at = new URL(page.url()).pathname;
       if ((res?.status() ?? 0) >= 500) problems.push(`${check.alsoVisit.path}: HTTP ${res?.status()}`);
       if (at !== check.alsoVisit.path) problems.push(`${check.alsoVisit.path}: landed on ${at} (session not kept?)`);
+      // The dev server may still be streaming the page on first compile; give it time.
+      await page.getByText(check.alsoVisit.expectText).first().waitFor({ timeout: 30_000 }).catch(() => {});
       if (!(await bodyText(page)).includes(check.alsoVisit.expectText)) {
         problems.push(`${check.alsoVisit.path}: missing text "${check.alsoVisit.expectText}"`);
       }

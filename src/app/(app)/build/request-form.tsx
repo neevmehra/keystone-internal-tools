@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, Sparkles } from "lucide-react";
+import { Banknote, Check, Eye, ShieldAlert, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { submitToolRequestAction } from "@/platform/requests/actions";
 import { buildDevinPrompt, type RequestKind } from "@/platform/requests/prompt";
+import { groupLabel } from "@/platform/ui/labels";
 import { CopyButton } from "./copy-button";
 
 type ToolOption = { slug: string; name: string; description: string };
@@ -19,10 +20,14 @@ const num = (v: string) => (v.trim() === "" || !Number.isFinite(Number(v)) ? und
 
 function Field({ label, hint, error, required, children }: { label: string; hint?: string; error?: string; required?: boolean; children: React.ReactNode }) {
   return (
-    <div className="space-y-1">
-      <Label className="text-xs">
+    <div className="space-y-1.5">
+      <Label className="text-xs font-medium">
         {label}
-        {required && <span className="text-destructive">*</span>}
+        {required && (
+          <span className="text-destructive" aria-hidden>
+            *
+          </span>
+        )}
       </Label>
       {children}
       {error ? <p className="text-xs text-destructive">{error}</p> : hint && <p className="text-xs text-muted-foreground">{hint}</p>}
@@ -115,7 +120,10 @@ export function RequestForm({
               role="tab"
               aria-selected={kind === k}
               onClick={() => setKind(k)}
-              className={cn("rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors", kind === k && "bg-background font-medium text-foreground shadow-sm")}
+              className={cn(
+                "min-h-9 rounded-md px-3.5 text-sm text-muted-foreground transition-colors hover:text-foreground",
+                kind === k && "bg-background font-medium text-foreground shadow-sm",
+              )}
             >
               {label}
             </button>
@@ -133,7 +141,7 @@ export function RequestForm({
                 <select
                   value={toolSlug}
                   onChange={(e) => setToolSlug(e.target.value)}
-                  className="h-8 w-full rounded-lg border bg-background px-2 text-sm"
+                  className="h-9 w-full rounded-lg border bg-background px-2.5 text-sm focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
                   aria-label="Tool to change"
                 >
                   <option value="" disabled>
@@ -157,22 +165,28 @@ export function RequestForm({
             <Textarea value={problem} onChange={(e) => setProblem(e.target.value)} className="min-h-20" aria-label="Problem" />
           </Field>
 
-          <Field label="Who will use it?" hint="Pick the teams (identity provider groups).">
-            <div className="flex flex-wrap gap-1.5">
-              {groups.map((g) => (
-                <button
-                  key={g}
-                  type="button"
-                  aria-pressed={audience.includes(g)}
-                  onClick={() => toggleGroup(g)}
-                  className={cn(
-                    "rounded-md border px-2 py-1 font-mono text-xs text-muted-foreground transition-colors hover:border-primary/40",
-                    audience.includes(g) && "border-primary/50 bg-primary/10 text-foreground",
-                  )}
-                >
-                  {g}
-                </button>
-              ))}
+          <Field label="Who will use it?" hint="Pick every team that will open it. Access comes from these identity provider groups.">
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Teams">
+              {groups.map((g) => {
+                const on = audience.includes(g);
+                return (
+                  <button
+                    key={g}
+                    type="button"
+                    aria-pressed={on}
+                    title={g}
+                    onClick={() => toggleGroup(g)}
+                    className={cn(
+                      "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-sm text-muted-foreground transition-colors",
+                      "hover:border-primary/40 hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+                      on && "border-primary bg-primary/10 font-medium text-primary hover:text-primary",
+                    )}
+                  >
+                    {on ? <Check className="size-3.5" aria-hidden /> : <span className="size-3.5 rounded-full border border-current opacity-40" aria-hidden />}
+                    {groupLabel(g)}
+                  </button>
+                );
+              })}
             </div>
           </Field>
 
@@ -189,16 +203,34 @@ export function RequestForm({
             </Field>
           </div>
 
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={involvesPii} onChange={(e) => setInvolvesPii(e.target.checked)} className="size-4 accent-primary" />
-              Involves customer personal data
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={movesMoney} onChange={(e) => setMovesMoney(e.target.checked)} className="size-4 accent-primary" />
-              Moves money
-            </label>
-          </div>
+          <fieldset className="space-y-1.5">
+            <legend className="text-xs font-medium">Sensitivity</legend>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {(
+                [
+                  [involvesPii, setInvolvesPii, ShieldAlert, "Involves customer personal data", "Names, emails, card or account details"],
+                  [movesMoney, setMovesMoney, Banknote, "Moves money", "Refunds, payouts, credits or write-offs"],
+                ] as const
+              ).map(([checked, set, Icon, label, hint]) => (
+                <label
+                  key={label}
+                  className={cn(
+                    "flex min-h-11 cursor-pointer items-start gap-3 rounded-lg border px-3 py-2.5 transition-colors hover:bg-muted/40",
+                    "has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/50",
+                    checked && "border-primary/50 bg-primary/5",
+                  )}
+                >
+                  <input type="checkbox" checked={checked} onChange={(e) => set(e.target.checked)} className="mt-0.5 size-4 shrink-0 accent-primary" />
+                  <span className="min-w-0">
+                    <span className="flex items-center gap-1.5 text-sm font-medium">
+                      <Icon className="size-3.5 text-muted-foreground" aria-hidden /> {label}
+                    </span>
+                    <span className="block text-xs text-muted-foreground">{hint}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="How many people deal with this today?" error={errors.peopleCount}>
@@ -210,11 +242,11 @@ export function RequestForm({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Button type="submit" disabled={pending}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+          <Button type="submit" size="lg" disabled={pending} className="sm:self-auto">
             <Sparkles /> {pending ? "Submitting…" : "Submit for approval"}
           </Button>
-          <p className="text-xs text-muted-foreground">An admin approves the request before Devin starts. An engineer reviews the code before it goes live.</p>
+          <p className="max-w-md text-xs text-muted-foreground">An admin approves the request before Devin starts. An engineer reviews the code before it goes live.</p>
         </div>
       </form>
 
@@ -226,7 +258,14 @@ export function RequestForm({
             </h2>
             <CopyButton text={preview} />
           </div>
-          <pre className="max-h-[32rem] overflow-auto px-4 py-3 font-mono text-[11px] leading-relaxed whitespace-pre-wrap text-muted-foreground">{preview}</pre>
+          <pre
+            tabIndex={0}
+            role="region"
+            aria-label="Prompt Devin will receive"
+            className="max-h-[32rem] overflow-auto px-4 py-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-foreground/80 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+          >
+            {preview}
+          </pre>
           <p className="border-t px-4 py-2.5 text-xs text-muted-foreground">
             {mode === "live"
               ? "Live mode: approval starts a real Devin session on this repo."

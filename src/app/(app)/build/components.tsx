@@ -7,6 +7,7 @@ import type { CurrentUser } from "@/platform/auth/types";
 import { latestRequestsForUser } from "@/platform/requests";
 import { STATUS_LABELS, STATUS_TONES, timeline, type DisplayStatus } from "@/platform/requests/status";
 import { EmptyState } from "@/platform/ui/EmptyState";
+import { toolLabel } from "@/platform/ui/labels";
 import { RelativeTime } from "@/platform/ui/RelativeTime";
 import { StatusBadge } from "@/platform/ui/StatusBadge";
 
@@ -37,7 +38,7 @@ export function RequestTimeline({ status, mode }: { status: DisplayStatus; mode:
                 "flex size-5 items-center justify-center rounded-full border [&_svg]:size-3",
                 s.state === "done" && "border-emerald-300 bg-emerald-50 text-emerald-700",
                 s.state === "current" && "border-primary bg-primary/10",
-                s.state === "failed" && "border-destructive/40 bg-destructive/10",
+                s.state === "failed" && "border-destructive/40 bg-destructive/10 text-red-700",
               )}
             >
               {s.state === "done" ? <Check /> : s.state === "failed" ? <X /> : <Circle className="fill-current opacity-60" />}
@@ -85,7 +86,7 @@ export async function YourRequests({ user, emptyIcon }: { user: CurrentUser; emp
               <p className="truncate text-sm font-medium">{r.title}</p>
               <p className="text-xs text-muted-foreground">
                 {kindLabel(r.kind)}
-                {r.toolSlug && <> · {r.toolSlug}</>} · <RelativeTime date={r.createdAt} className="text-muted-foreground" />
+                {r.toolSlug && <> · {toolLabel(r.toolSlug)}</>} · <RelativeTime date={r.createdAt} className="text-muted-foreground" />
               </p>
             </div>
             <RequestStatusBadge status={r.display} />
