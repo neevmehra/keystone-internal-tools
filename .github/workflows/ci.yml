@@ -27,3 +27,48 @@ jobs:
         run: npm test
       - name: Governance check
         run: npm run check:governance
+      - name: Production build
+        run: npm run build
+
+  # Runs the real app with seeded data and clicks through every page as each
+  # demo identity. Screenshots are uploaded as the "screenshots" artifact.
+  smoke:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: file:./smoke.db
+      AUTH_SECRET: ci-only-secret-not-used-anywhere
+      AUTH_MODE: mock
+      FAKE_PAYMENTS_FAIL_RATE: "0"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Migrate and seed
+        run: npm run db:reset
+      # Demo sign-in refuses NODE_ENV=production by design, so the smoke test
+      # runs against the dev server. The production build is checked above.
+      - name: Start app
+        run: |
+          npx next dev --port 3000 > e2e-dev-server.log 2>&1 &
+          for i in $(seq 1 90); do
+            if curl -fsS -o /dev/null http://localhost:3000/sign-in; then echo "app is up"; exit 0; fi
+            sleep 2
+          done
+          echo "app did not start"; cat e2e-dev-server.log; exit 1
+      - name: Smoke test
+        run: npx tsx e2e/smoke.ts
+      - name: Server log on failure
+        if: failure()
+        run: tail -n 200 e2e-dev-server.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots
+          path: e2e/artifacts/
+          if-no-files-found: ignore

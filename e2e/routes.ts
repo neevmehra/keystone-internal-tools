@@ -1,0 +1,36 @@
+/**
+ * Smoke routes: every page in the app, visited as a real demo identity
+ * through the real sign-in page. CI fails if a page errors, returns 5xx,
+ * or lands somewhere other than `expectPath`.
+ *
+ * When you add a page, add it here. Add `screenshot` for pages worth
+ * showing in a demo; screenshots are uploaded as a CI artifact.
+ */
+export type SmokeRoute = {
+  /** Demo username, or null to visit signed out. */
+  as: string | null;
+  path: string;
+  /** Where the browser should end up. Defaults to `path` (query string ignored). */
+  expectPath?: string;
+  /** Text that must appear on the page. */
+  expectText?: string;
+  /** File name (without .png) for a full-page screenshot. */
+  screenshot?: string;
+};
+
+export const SMOKE_ROUTES: SmokeRoute[] = [
+  // Signed out
+  { as: null, path: "/", expectPath: "/sign-in", screenshot: "sign-in" },
+
+  // Portal home per role
+  { as: "maria", path: "/", screenshot: "portal-maria" },
+  { as: "alex", path: "/", screenshot: "portal-alex" },
+  { as: "admin", path: "/", screenshot: "portal-admin" },
+
+  // Audit log
+  { as: "alex", path: "/audit", expectText: "Audit", screenshot: "audit-alex" },
+  { as: "maria", path: "/audit", expectPath: "/forbidden" },
+
+  // Unprovisioned identity
+  { as: "contractor", path: "/", expectPath: "/access-not-provisioned", screenshot: "access-not-provisioned" },
+];
