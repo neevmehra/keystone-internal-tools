@@ -230,6 +230,7 @@ model Dispute {
   @@index([customerId])
   @@index([transactionId])
   @@index([resolvedAt])
+}
 
 // "Build with Devin" request center. A plain-language request for a new tool
 // or a change, approved by an admin, then built by a Devin session.
