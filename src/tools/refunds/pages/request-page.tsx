@@ -64,7 +64,7 @@ export async function RequestPage({ searchParams }: { searchParams: Promise<Sear
   return (
     <div className="max-w-4xl space-y-5">
       <p className="text-sm text-muted-foreground">
-        <Link href="/tools/refunds" className="hover:text-foreground">
+        <Link href="/tools/refunds" className="-mx-1 inline-flex min-h-8 items-center rounded px-1 hover:bg-muted hover:text-foreground">
           Refunds
         </Link>{" "}
         / New refund

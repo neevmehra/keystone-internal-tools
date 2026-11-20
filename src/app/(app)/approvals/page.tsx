@@ -49,7 +49,8 @@ function what(r: InboxItem) {
       <span className="block max-w-56 truncate font-mono text-[11px] text-muted-foreground" title={`${r.entityType} ${r.entityId}`}>
         {humanize(r.entityType)} {r.entityId}
       </span>
-      <span className="mt-0.5 block text-[11px] text-muted-foreground md:hidden">
+      <span className="mt-0.5 block text-[11px] whitespace-normal text-muted-foreground md:hidden">
+        {r.amountCents != null && <span className="font-medium text-foreground tabular-nums sm:hidden">{formatCurrency(r.amountCents)} · </span>}
         {toolLabel(r.tool)} · {r.requestedByName}
         {r.isOwn ? " (you)" : ""} · <RelativeTime date={r.createdAt} className="text-muted-foreground" />
       </span>
@@ -102,8 +103,8 @@ export default async function ApprovalsPage({ searchParams }: { searchParams: Pr
 
   const columns: DataTableColumn[] = [
     { id: "tool", header: "Tool", sortable: true, className: "hidden md:table-cell" },
-    { id: "what", header: "What" },
-    { id: "amountCents", header: "Amount", sortable: true, align: "right" },
+    { id: "what", header: "What", className: "max-w-60 whitespace-normal" },
+    { id: "amountCents", header: "Amount", sortable: true, align: "right", className: "hidden sm:table-cell" },
     { id: "requestedBy", header: "Requested by", className: "hidden md:table-cell" },
     { id: "createdAt", header: tab === "pending" ? "Age" : "Requested", sortable: true, className: "hidden md:table-cell" },
     ...(tab === "decided" ? [{ id: "decidedAt", header: "Decided", className: "hidden lg:table-cell" }] : []),

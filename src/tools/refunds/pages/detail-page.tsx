@@ -31,7 +31,7 @@ export async function DetailPage({ params }: { params: Promise<{ id: string }> }
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        <Link href="/tools/refunds" className="hover:text-foreground">
+        <Link href="/tools/refunds" className="-mx-1 inline-flex min-h-8 items-center rounded px-1 hover:bg-muted hover:text-foreground">
           Refunds
         </Link>{" "}
         / <span className="font-mono text-xs">{refund.id}</span>
