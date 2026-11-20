@@ -232,7 +232,7 @@ async function flows(browser: Browser) {
       await page.getByText("txn_000021").first().waitFor({ timeout: 30_000 });
     });
     await step("choose transaction", async () => {
-      await click(page.getByRole("link", { name: /txn_000021|select|refund this|choose/i }).first());
+      await click(page.getByRole("link", { name: "Refund", exact: true }).first());
       await page.getByRole("button", { name: "Request refund" }).waitFor({ timeout: 30_000 });
     });
     await step("fill and submit", async () => {
